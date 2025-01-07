@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Cadastrar Dados Financeiros</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="nome">Nome</label>
+            <input type="text" class="form-control" id="nome" name="nome" value="{{ usuario.nome }}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="telefone">Telefone</label>
+            <input type="text" class="form-control" id="telefone" name="telefone" value="{{ usuario.telefone }}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="data_pagamento">Data de Pagamento</label>
+            <input type="date" class="form-control" id="data_pagamento" name="data_pagamento" required>
+        </div>
+        <div class="form-group">
+            <label for="valor">Valor</label>
+            <input type="number" class="form-control" id="valor" name="valor" step="0.01" placeholder="Ex: 100.00" required>
+        </div>
+        <div class="form-group">
+            <label for="meses_contratados">Meses Contratados</label>
+            <input type="number" class="form-control" id="meses_contratados" name="meses_contratados" placeholder="Ex: 3" required>
+        </div>
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select class="form-control" id="status" name="status" required>
+                <option value="pendente">Pendente</option>
+                <option value="atrasado">Atrasado</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="observacao">Observação</label>
+            <textarea class="form-control" id="observacao" name="observacao" placeholder="Adicione observações, se necessário"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+    </form>
+
+    <a href="{{ url_for('financeiro_routes.financeiro', usuario_id=usuario_id) }}" class="btn btn-danger">Voltar</a>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Criar Novo Usuário
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Criar Novo Usuário</h1>
+    
+    <form class="form" method="POST" onsubmit="return validarTelefone()">
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" name="telefone" placeholder="(xx)xxxxx-xxxx" oninput="formatarTelefone()" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="tipo">Tipo de Usuário:</label>
+            <select id="tipo" name="tipo" required>
+                <option value="adm">Administrador</option>
+                <option value="aluno">Aluno</option>
+                <option value="visit">Usuário</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Criar Usuário</button>
+    </form>
+    
+    <div class="btn-container">
+        <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar ao Menu</a>
+    </div>
+</div>
+
+<script>
+    function formatarTelefone() {
+        let telefone = document.getElementById('telefone').value;
+        telefone = telefone.replace(/\D/g, '');
+    
+        if (telefone.length <= 2) {
+            telefone = `(${telefone}`;
+        } else if (telefone.length <= 7) {
+            telefone = `(${telefone.substring(0, 2)}) ${telefone.substring(2)}`;
+        } else {
+            telefone = `(${telefone.substring(0, 2)}) ${telefone.substring(2, 7)}-${telefone.substring(7, 11)}`;
+        }
+    
+        document.getElementById('telefone').value = telefone;
+    }
+
+    function validarTelefone() {
+        var telefone = document.getElementById('telefone').value;
+        telefone = telefone.replace(/\D/g, '');
+
+        if (telefone.length !== 11) {
+            alert('O telefone precisa ter 11 dígitos.');
+            return false;  
+        }
+
+        document.getElementById('telefone').value = telefone;
+        return true; 
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Lançar Nova Conta{% endblock %}
+
+{% block content %}
+<h2>Lançar Nova Conta</h2>
+
+<form method="POST">
+    <label for="descricao">Descrição:</label>
+    <input type="text" id="descricao" name="descricao" required>
+
+    <label for="valor">Valor:</label>
+    <input type="number" id="valor" name="valor" required>
+
+    <label for="data_vencimento">Data de Vencimento:</label>
+    <input type="date" id="data_vencimento" name="data_vencimento" required>
+
+    <label for="status">Status:</label>
+    <select id="status" name="status" required>
+        <option value="aberto">Aberto</option>
+        <option value="pago">Pago</option>
+    </select>
+
+    <button type="submit">Lançar Conta</button>
+</form>
+
+<a href="{{ url_for('painel_routes.painel_controle') }}" class="btn-red">Voltar ao Painel Financeiro</a>
+
+{% endblock %}

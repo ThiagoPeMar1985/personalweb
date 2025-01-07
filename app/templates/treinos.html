@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="treinos-container">
+    <div class="treinos-header">
+        <h2>Treinos de {{ usuario.nome }}</h2>
+        <div class="treinos-actions">
+            <button class="btn btn-training" onclick="toggleVisibility('treinoA')">Treino A</button>
+            <button class="btn btn-training" onclick="toggleVisibility('treinoB')">Treino B</button>  
+            <button class="btn btn-training" onclick="toggleVisibility('treinoC')">Treino C</button>
+            <button class="btn btn-training" onclick="toggleVisibility('treinoD')">Treino D</button>
+            <button class="btn btn-training" onclick="toggleVisibility('treinoE')">Treino E</button>
+            <button class="btn btn-training" onclick="toggleVisibility('treinoF')">Treino F</button>
+            <button class="btn btn-training" onclick="toggleVisibility('treinoG')">Treino G</button>    
+        </div>
+    </div>
+
+    <div class="treinos-content">
+        {% for letra in ['A', 'B', 'C', 'D', 'E', 'F', 'G'] %}
+        <div id="treino{{ letra }}" class="treino-panel" style="display: none;">
+            <div class="treino-header">
+                <h4>Treino {{ letra }}</h4>
+            </div>
+            <div class="treino-content">
+                <div class="treino-exercises">
+                    {% set has_treino = false %}
+                    {% for treino in treinos %}
+                        {% if treino.nome_treino == letra %}
+                            {% set has_treino = true %}
+                            <div class="exercise-item">
+                                <div class="exercise-name">{{ treino.exercicio }}</div>
+                                <div class="exercise-details">
+                                    <span class="exercise-reps">{{ treino.repeticoes }} repetições</span>
+                                    <span class="exercise-weight">{{ treino.peso }} kg</span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not has_treino %}
+                        <p class="no-exercises">Não há exercícios cadastrados para o Treino {{ letra }}.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="add-treino-section">
+        <h3>Adicionar Novo Treino</h3>
+        <form class="treino-form" action="{{ url_for('aluno_routes.adicionar_treino', user_id=usuario.id) }}" method="POST">
+            <div class="form-group">
+                <label for="nome_treino">Treino</label>
+                <select id="nome_treino" name="nome_treino" required>
+                    {% for letra in ['A', 'B', 'C', 'D', 'E', 'F', 'G'] %}
+                        <option value="{{ letra }}">{{ letra }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="exercicio">Exercício</label>
+                <input type="text" id="exercicio" name="exercicio" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="repeticoes">Repetições</label>
+                <input type="text" id="repeticoes" name="repeticoes" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="peso">Peso (kg)</label>
+                <input type="text" id="peso" name="peso" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Adicionar Exercício</button>
+        </form>
+    </div>
+
+    <div class="back-button">
+        <div class="button-group">
+            <a href="{{ url_for('aluno_routes.gerenciar_treinos', user_id=usuario.id) }}" class="btn btn-danger">Excluir Exercícios</a>
+            <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar ao Menu</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleVisibility(treinoId) {
+    // Esconde todos os treinos
+    document.querySelectorAll('.treino-panel').forEach(panel => {
+        panel.style.display = 'none';
+    });
+    
+    // Mostra o treino selecionado
+    const selectedTreino = document.getElementById(treinoId);
+    if (selectedTreino) {
+        selectedTreino.style.display = 'block';
+    }
+}
+</script>
+{% endblock %}

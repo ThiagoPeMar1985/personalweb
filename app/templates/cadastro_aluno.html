@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Cadastro de Aluno</h1>
+
+    <form class="form" action="{{ url_for('aluno_routes.cadastro_aluno', usuario_id=usuario_id, nome=nome) }}" method="POST">
+        <input type="hidden" name="usuario_id" value="{{ usuario_id }}">
+
+        <fieldset>
+            <legend>Informações Pessoais</legend>
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" value="{{ nome }}" required readonly placeholder="Nome completo"><br><br>
+
+            <label for="idade">Idade:</label>
+            <input type="number" id="idade" name="idade" min="1" required placeholder="Idade em anos"><br><br>
+
+            <label for="endereco">Endereço:</label>
+            <input type="text" id="endereco" name="endereco" required placeholder="Endereço completo"><br><br>
+
+            <label for="telefone">Telefone:</label>
+            <input type="tel" id="telefone" name="telefone" placeholder="(XX) XXXXX-XXXX" required><br><br>
+
+            <label for="altura">Altura (em metros):</label>
+            <input type="number" id="altura" name="altura" step="0.01" min="0.5" required placeholder="Altura em metros ex: 1.75"><br><br>
+
+            <label for="peso">Peso (em kg):</label>
+            <input type="number" id="peso" name="peso" step="0.1" min="1" required placeholder="Peso em quilogramas"><br><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Medidas Corporais</legend>
+            <label for="imc">IMC:</label>
+            <input type="number" step="0.01" name="imc" id="imc" required placeholder="Índice de Massa Corporal"><br><br>
+
+            <label for="porcentagem_gordura">Porcentagem de Gordura:</label>
+            <input type="number" step="0.01" name="porcentagem_gordura" id="porcentagem_gordura" required placeholder="Porcentagem de gordura corporal"><br><br>
+
+            <label for="porcentagem_musculo">Porcentagem de Músculo:</label>
+            <input type="number" step="0.01" name="porcentagem_musculo" id="porcentagem_musculo" required placeholder="Porcentagem de músculo corporal"><br><br>
+
+            <label for="taxa_metabolica_basal">Taxa Metabólica Basal (kcal/dia):</label>
+            <input type="number" step="0.01" name="taxa_metabolica_basal" id="taxa_metabolica_basal" required placeholder="Taxa metabólica basal em kcal/dia"><br><br>
+
+            <label for="idade_media">Idade Média:</label>
+            <input type="number" name="idade_media" id="idade_media" min="1" required placeholder="Idade média corporal"><br><br>
+
+            <label for="gordura_visceral">Gordura Visceral:</label>
+            <input type="number" step="0.01" name="gordura_visceral" id="gordura_visceral" required placeholder="ex:15.5"><br><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Medidas Antropométricas</legend>
+            <label for="pescoco">Pescoço (cm):</label>
+            <input type="number" step="0.01" name="pescoco" id="pescoco" required placeholder="ex: 1.20"><br><br>
+
+            <label for="ombro">Ombro (cm):</label>
+            <input type="number" step="0.01" name="ombro" id="ombro" required placeholder="ex: 1.20"><br><br>
+
+            <label for="torax">Tórax (cm):</label>
+            <input type="number" step="0.01" name="torax" id="torax" required placeholder="ex: 1.20"><br><br>
+
+            <label for="cintura">Cintura (cm):</label>
+            <input type="number" step="0.01" name="cintura" id="cintura" required placeholder="ex: 1.20"><br><br>
+
+            <label for="abdominal">Abdominal (cm):</label>
+            <input type="number" step="0.01" name="abdominal" id="abdominal" required placeholder="ex: 1.20"><br><br>
+
+            <label for="quadril">Quadril (cm):</label>
+            <input type="number" step="0.01" name="quadril" id="quadril" required placeholder="ex: 1.20"><br><br>
+
+            <label for="braco_direito">Braço Direito (cm):</label>
+            <input type="number" step="0.01" name="braco_direito" id="braco_direito" required placeholder="ex: 1.20"><br><br>
+
+            <label for="braco_esquerdo">Braço Esquerdo (cm):</label>
+            <input type="number" step="0.01" name="braco_esquerdo" id="braco_esquerdo" required placeholder="ex: 1.20"><br><br>
+
+            <label for="braco_circulo_direito">Circunferência Braço Direito (cm):</label>
+            <input type="number" step="0.01" name="braco_circulo_direito" id="braco_circulo_direito" required placeholder="ex: 1.20"><br><br>
+
+            <label for="braco_circulo_esquerdo">Circunferência Braço Esquerdo (cm):</label>
+            <input type="number" step="0.01" name="braco_circulo_esquerdo" id="braco_circulo_esquerdo" required placeholder="ex: 1.20"><br><br>
+
+            <label for="antebraco_direito">Antebraço Direito (cm):</label>
+            <input type="number" step="0.01" name="antebraco_direito" id="antebraco_direito" required placeholder="ex: 1.20"><br><br>
+
+            <label for="antebraco_esquerdo">Antebraço Esquerdo (cm):</label>
+            <input type="number" step="0.01" name="antebraco_esquerdo" id="antebraco_esquerdo" required placeholder="ex: 1.20"><br><br>
+
+            <label for="perna_direita">Perna Direita (cm):</label>
+            <input type="number" step="0.01" name="perna_direita" id="perna_direita" required placeholder="ex: 1.20"><br><br>
+
+            <label for="perna_esquerda">Perna Esquerda (cm):</label>
+            <input type="number" step="0.01" name="perna_esquerda" id="perna_esquerda" required placeholder="ex: 1.20"><br><br>
+
+            <label for="panturrilha_esquerda">Panturrilha Esquerda (cm):</label>
+            <input type="number" step="0.01" name="panturrilha_esquerda" id="panturrilha_esquerda" required placeholder="ex: 1.20"><br><br>
+            
+            <label for="panturrilha_direita">Panturrilha Direita (cm):</label>
+            <input type="number" step="0.01" name="panturrilha_direita" id="panturrilha_direita" required placeholder="ex: 1.20"><br><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Outras Informações</legend>
+            <label for="problemas_saude">Problemas de Saúde:</label>
+            <input type="text" id="problemas_saude" name="problemas_saude" required placeholder="Descreva os problemas de saúde (se houver)"><br><br>    
+
+            <label for="desejos">O que deseja alcançar:</label>
+            <textarea id="desejos" name="desejos" rows="4" cols="50" placeholder="Descreva seus objetivos de treino ou saúde"></textarea><br><br>
+
+            <label for="data">Data:</label>
+            <input type="date" id="data" name="data" required><br><br>
+        </fieldset>
+        <div class='centro'>
+        <button class="btn-green" type="submit" value="Cadastrar">Cadastrar</button> 
+        </div>
+    </form>
+
+    <form action="{{ url_for('aluno_routes.mostrar_aluno', usuario_id=usuario_id) }}" method="GET">
+        <button type="submit" class='btn-red'>Voltar</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="gerenciar-container">
+    <div class="gerenciar-header">
+        <h2>Gerenciar Treinos</h2>
+        <p class="subtitle">Selecione os exercícios que deseja excluir</p>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table treinos-table">
+            <thead>
+                <tr>
+                    <th>Treino</th>
+                    <th>Exercício</th>
+                    <th>Repetições</th>
+                    <th>Peso</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for treino in treinos %}
+                <tr>
+                    <td data-label="Treino">{{ treino.nome_treino }}</td>
+                    <td data-label=>{{ treino.exercicio }}</td>
+                    <td data-label=>{{ treino.repeticoes }}</td>
+                    <td data-label=>{{ treino.peso }} kg</td>
+                    <td data-label=>
+                        <button onclick="excluirTreino('{{ treino.nome_treino }}', '{{ treino.exercicio }}')" class="btn btn-danger">Excluir</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="back-button">
+        <a href="{{ url_for('aluno_routes.treinos', user_id=usuario_id) }}" class="btn btn-danger">Voltar aos Treinos</a>
+    </div>
+</div>
+
+<script>
+function excluirTreino(nomeTreino, exercicio) {
+    if (confirm(`Deseja excluir o exercício "${exercicio}" do Treino ${nomeTreino}?`)) {
+        const userId = {{ usuario_id }};
+        window.location.href = `/excluir_treino/${userId}?nome_treino=${nomeTreino}&exercicio=${exercicio}`;
+    }
+}
+</script>
+{% endblock %}

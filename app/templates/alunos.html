@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Bem-vindo  {{ nome }}. </h2>
+
+    <button class="btn-green" onclick="toggleContainerAvaliacao()">Avaliações</button>
+    <button class="btn-green" onclick="toggleContainerTreinos()">Treinos</button>
+
+    {% if avaliacoes %}
+        <div class="avaliacoes-container" id='avaliacoes-container'style="display:none">
+            {% for avaliacao in avaliacoes %}
+                <div class="avaliacao">
+                    <!-- Exibe a data da avaliação -->
+                    <h3 class="data-avaliacao">Data da Avaliação: {{ avaliacao.data.strftime('%d/%m/%Y') }}</h3>
+
+                    <!-- Botão para mostrar/ocultar dados -->
+                    <button class="btn" onclick="toggleAvaliationData({{ loop.index }})">Mostrar/Esconder</button>
+
+                    <!-- Exibe os dados da avaliação -->
+                    <div class="dados-avaliacao" id="dados-avaliacao-{{ loop.index }}" style="display: none;">
+                        <div><strong>Idade:</strong> {{ avaliacao.idade }}</div>
+                        <div><strong>Endereço:</strong> {{ avaliacao.endereco }}</div>
+                        <div><strong>Telefone:</strong> {{ avaliacao.telefone }}</div>
+                        <div><strong>Altura:</strong> {{ avaliacao.altura }}</div>
+                        <div><strong>Peso:</strong> {{ avaliacao.peso }}</div>
+                        <div><strong>Problemas de Saúde:</strong> {{ avaliacao.problemas_saude }}</div>
+                        <div><strong>Desejos:</strong> {{ avaliacao.desejos }}</div>
+                        <div><strong>IMC:</strong> {{ avaliacao.imc }}</div>
+                        <div><strong>Porcentagem de Gordura:</strong> {{ avaliacao.porcentagem_gordura }}</div>
+                        <div><strong>Porcentagem de Músculo:</strong> {{ avaliacao.porcentagem_musculo }}</div>
+                        <div><strong>Taxa Metabólica Basal:</strong> {{ avaliacao.taxa_metabolica_basal }}</div>
+                        <div><strong>Idade Média:</strong> {{ avaliacao.idade_media }}</div>
+                        <div><strong>Gordura Visceral:</strong> {{ avaliacao.gordura_visceral }}</div>
+                        <div><strong>Pescoço:</strong> {{ avaliacao.pescoco }}</div>
+                        <div><strong>Ombro:</strong> {{ avaliacao.ombro }}</div>
+                        <div><strong>Tórax:</strong> {{ avaliacao.torax }}</div>
+                        <div><strong>Cintura:</strong> {{ avaliacao.cintura }}</div>
+                        <div><strong>Abdominal:</strong> {{ avaliacao.abdominal }}</div>
+                        <div><strong>Quadril:</strong> {{ avaliacao.quadril }}</div>
+                        <div><strong>Braço Direito:</strong> {{ avaliacao.braco_direito }}</div>
+                        <div><strong>Braço Esquerdo:</strong> {{ avaliacao.braco_esquerdo }}</div>
+                        <div><strong>Circunferência Braço Direito:</strong> {{ avaliacao.braco_circulo_direito }}</div>
+                        <div><strong>Circunferência Braço Esquerdo:</strong> {{ avaliacao.braco_circulo_esquerdo }}</div>
+                        <div><strong>Antebraço Direito:</strong> {{ avaliacao.antebraco_direito }}</div>
+                        <div><strong>Antebraço Esquerdo:</strong> {{ avaliacao.antebraco_esquerdo }}</div>
+                        <div><strong>Perna Direita:</strong> {{ avaliacao.perna_direita }}</div>
+                        <div><strong>Perna Esquerda:</strong> {{ avaliacao.perna_esquerda }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Não há avaliações anteriores para este aluno.</p>
+    {% endif %}
+
+
+    <div id="treinos-container" style="display: none;">
+        <h2>Treinos</h2>
+        <button class="toggle-btn" onclick="toggleVisibility('treinoA')">Treino A</button>
+        <button class="toggle-btn" onclick="toggleVisibility('treinoB')">Treino B</button>
+        <button class="toggle-btn" onclick="toggleVisibility('treinoC')">Treino C</button>
+        <button class="toggle-btn" onclick="toggleVisibility('treinoD')">Treino D</button>
+        <button class="toggle-btn" onclick="toggleVisibility('treinoE')">Treino E</button>
+        <button class="toggle-btn" onclick="toggleVisibility('treinoF')">Treino F</button>
+        <button class="toggle-btn" onclick="toggleVisibility('treinoG')">Treino G</button>
+
+        <div class="treinos-container">
+            <div class="treino-column" id="treinoA" style="display:none">
+                <h4>Treino A</h4>
+                {% for treino in treinos %}
+                    {% if treino.nome_treino == 'A' %}
+                        <p><strong> Exercicioº:</strong> {{ treino.exercicio }} -  {{ treino.repeticoes }} - {{ treino.peso }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div id="treinoB" class="treino-column" style="display:none">
+                <h4>Treino B</h4>
+                {% for treino in treinos %}
+                    {% if treino.nome_treino == 'B' %}
+                        <p><strong>Exercício:</strong> {{ treino.exercicio }} -  {{ treino.repeticoes }} - {{ treino.peso }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div id="treinoC" class="treino-column" style="display:none">
+                <h4>Treino C</h4>
+                {% for treino in treinos %}
+                    {% if treino.nome_treino == 'C' %}
+                        <p><strong>Exercício:</strong> {{ treino.exercicio }} - {{ treino.repeticoes }} -  {{ treino.peso }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div id="treinoD" class="treino-column" style="display:none">
+                <h4>Treino D</h4>
+                {% for treino in treinos %}
+                    {% if treino.nome_treino == 'D' %}
+                        <p><strong>Exercício:</strong> {{ treino.exercicio }} -  {{ treino.repeticoes }} - {{ treino.peso }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div id="treinoE" class="treino-column" style="display:none">
+                <h4>Treino E</h4>
+                {% for treino in treinos %}
+                    {% if treino.nome_treino == 'E' %}
+                        <p><strong>Exercício:</strong> {{ treino.exercicio }} -  {{ treino.repeticoes }} -  {{ treino.peso }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div id="treinoF" class="treino-column" style="display:none">
+                <h4>Treino F</h4>
+                {% for treino in treinos %}
+                    {% if treino.nome_treino == 'F' %}
+                        <p><strong>Exercício:</strong> {{ treino.exercicio }} -  {{ treino.repeticoes }} - {{ treino.peso }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div id="treinoG" class="treino-column" style="display:none">
+                <h4>Treino G</h4>
+                {% for treino in treinos %}
+                    {% if treino.nome_treino == 'G' %}
+                        <p><strong>Exercício:</strong> {{ treino.exercicio }} -  {{ treino.repeticoes }} -  {{ treino.peso }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <a href="{{ url_for('auth_routes.logout') }}" class="btn-red">Sair</a>
+
+    <script>
+        function toggleContainerAvaliacao() {
+            const container = document.getElementById('avaliacoes-container');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleAvaliationData(index) {
+            const dataDiv = document.getElementById(`dados-avaliacao-${index}`);
+            dataDiv.style.display = dataDiv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleVisibility(treinoId) {
+            const treino = document.getElementById(treinoId);
+            if (treino.style.display === 'none' || treino.style.display === '') {
+                treino.style.display = 'block'; // Exibe o treino
+            } else {
+                treino.style.display = 'none'; // Esconde o treino
+            }
+        }
+
+        function toggleContainerTreinos() {
+            const container = document.getElementById('treinos-container');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+        
+    </script>
+{% endblock %}

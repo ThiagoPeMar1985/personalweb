@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="avaliacoes-container">
+    <div class="page-header">
+        <h2>Avaliações do Aluno: {{ nome }}</h2>
+        <p class="subtitle">Histórico de avaliações físicas</p>
+    </div>
+
+    <div class="button-group header-buttons">
+        <a href="{{ url_for('aluno_routes.cadastro_aluno', usuario_id=usuario_id, nome=nome) }}" class="btn btn-blue">Cadastrar Avaliação</a>
+        <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar ao Menu</a>
+    </div>
+
+    {% if avaliacoes|length > 0 %}
+        <!-- Seção de Gráficos -->
+        <div class="graficos-container">
+            <div class="grafico-header">
+                <h3>Evolução das Medidas</h3>
+                <select id="medida-select" class="form-select">
+                    <option value="peso">Peso</option>
+                    <option value="imc">IMC</option>
+                    <option value="porcentagem_gordura">Porcentagem de Gordura</option>
+                    <option value="porcentagem_musculo">Porcentagem de Músculo</option>
+                    <option value="pescoco">Pescoço</option>
+                    <option value="ombro">Ombro</option>
+                    <option value="torax">Tórax</option>
+                    <option value="cintura">Cintura</option>
+                    <option value="abdominal">Abdominal</option>
+                    <option value="quadril">Quadril</option>
+                    <option value="braco_direito">Braço Direito</option>
+                    <option value="braco_esquerdo">Braço Esquerdo</option>
+                    <option value="antebraco_direito">Antebraço Direito</option>
+                    <option value="antebraco_esquerdo">Antebraço Esquerdo</option>
+                    <option value="perna_direita">Perna Direita</option>
+                    <option value="perna_esquerda">Perna Esquerda</option>
+                    <option value="panturrilha_direita">Panturrilha Direita</option>
+                    <option value="panturrilha_esquerda">Panturrilha Esquerda</option>
+                </select>
+            </div>
+            <div class="grafico-wrapper">
+                <canvas id="evolucaoChart"></canvas>
+            </div>
+        </div>
+
+        <div class="avaliacoes-list">
+            {% for avaliacao in avaliacoes %}
+                <div class="avaliacao-card">
+                    <div class="avaliacao-header">
+                        <h3>Avaliação de {{ avaliacao.data.strftime('%d/%m/%Y') }}</h3>
+                        <div class="avaliacao-actions">
+                            <button class="btn btn-blue" onclick="toggleAvaliationData({{ loop.index }})">
+                                <span class="toggle-text">Mostrar Detalhes</span>
+                            </button>
+                            <form action="{{ url_for('aluno_routes.excluir_avaliacao', avaliacao_id=avaliacao.id, usuario_id=usuario_id, nome=nome) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Deseja excluir esta avaliação?')">Excluir</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="avaliacao-details" id="dados-avaliacao-{{ loop.index }}" style="display: none;">
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Idade:</span>
+                                <span class="detail-value">{{ avaliacao.idade }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Altura:</span>
+                                <span class="detail-value">{{ avaliacao.altura }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Peso:</span>
+                                <span class="detail-value">{{ avaliacao.peso }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">IMC:</span>
+                                <span class="detail-value">{{ avaliacao.imc }}</span>
+                            </div>
+                            <div class="detail-item full-width">
+                                <span class="detail-label">Problemas de Saúde:</span>
+                                <span class="detail-value">{{ avaliacao.problemas_saude }}</span>
+                            </div>
+                            <div class="detail-item full-width">
+                                <span class="detail-label">Desejos:</span>
+                                <span class="detail-value">{{ avaliacao.desejos }}</span>
+                            </div>
+                        </div>
+
+                        <div class="measurements-grid">
+                            <h4>Medidas Corporais</h4>
+                            <div class="measurements-section">
+                                <div class="detail-item">
+                                    <span class="detail-label">% Gordura:</span>
+                                    <span class="detail-value">{{ avaliacao.porcentagem_gordura }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">% Músculo:</span>
+                                    <span class="detail-value">{{ avaliacao.porcentagem_musculo }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Taxa Metabólica:</span>
+                                    <span class="detail-value">{{ avaliacao.taxa_metabolica_basal }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Idade Média:</span>
+                                    <span class="detail-value">{{ avaliacao.idade_media }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Gordura Visceral:</span>
+                                    <span class="detail-value">{{ avaliacao.gordura_visceral }}</span>
+                                </div>
+                            </div>
+
+                            <h4>Circunferências</h4>
+                            <div class="measurements-section">
+                                <div class="detail-item">
+                                    <span class="detail-label">Pescoço:</span>
+                                    <span class="detail-value">{{ avaliacao.pescoco }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Ombro:</span>
+                                    <span class="detail-value">{{ avaliacao.ombro }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Tórax:</span>
+                                    <span class="detail-value">{{ avaliacao.torax }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Cintura:</span>
+                                    <span class="detail-value">{{ avaliacao.cintura }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Abdominal:</span>
+                                    <span class="detail-value">{{ avaliacao.abdominal }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Quadril:</span>
+                                    <span class="detail-value">{{ avaliacao.quadril }}</span>
+                                </div>
+                            </div>
+
+                            <h4>Membros</h4>
+                            <div class="measurements-section">
+                                <div class="detail-item">
+                                    <span class="detail-label">Braço Dir.:</span>
+                                    <span class="detail-value">{{ avaliacao.braco_direito }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Braço Esq.:</span>
+                                    <span class="detail-value">{{ avaliacao.braco_esquerdo }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Circ. Braço Dir.:</span>
+                                    <span class="detail-value">{{ avaliacao.braco_circulo_direito }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Circ. Braço Esq.:</span>
+                                    <span class="detail-value">{{ avaliacao.braco_circulo_esquerdo }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Antebraço Dir.:</span>
+                                    <span class="detail-value">{{ avaliacao.antebraco_direito }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Antebraço Esq.:</span>
+                                    <span class="detail-value">{{ avaliacao.antebraco_esquerdo }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Perna Dir.:</span>
+                                    <span class="detail-value">{{ avaliacao.perna_direita }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Perna Esq.:</span>
+                                    <span class="detail-value">{{ avaliacao.perna_esquerda }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Panturrilha Dir.:</span>
+                                    <span class="detail-value">{{ avaliacao.panturrilha_direita }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Panturrilha Esq.:</span>
+                                    <span class="detail-value">{{ avaliacao.panturrilha_esquerda }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Incluir Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+            // Dados das avaliações
+            const avaliacoes = [
+                {% for avaliacao in avaliacoes %}
+                    {
+                        data: "{{ avaliacao.data.strftime('%d/%m/%Y') }}",
+                        peso: {{ avaliacao.peso|default(0) }},
+                        imc: {{ avaliacao.imc|default(0) }},
+                        porcentagem_gordura: {{ avaliacao.porcentagem_gordura|default(0) }},
+                        porcentagem_musculo: {{ avaliacao.porcentagem_musculo|default(0) }},
+                        pescoco: {{ avaliacao.pescoco|default(0) }},
+                        ombro: {{ avaliacao.ombro|default(0) }},
+                        torax: {{ avaliacao.torax|default(0) }},
+                        cintura: {{ avaliacao.cintura|default(0) }},
+                        abdominal: {{ avaliacao.abdominal|default(0) }},
+                        quadril: {{ avaliacao.quadril|default(0) }},
+                        braco_direito: {{ avaliacao.braco_direito|default(0) }},
+                        braco_esquerdo: {{ avaliacao.braco_esquerdo|default(0) }},
+                        antebraco_direito: {{ avaliacao.antebraco_direito|default(0) }},
+                        antebraco_esquerdo: {{ avaliacao.antebraco_esquerdo|default(0) }},
+                        perna_direita: {{ avaliacao.perna_direita|default(0) }},
+                        perna_esquerda: {{ avaliacao.perna_esquerda|default(0) }},
+                        panturrilha_direita: {{ avaliacao.panturrilha_direita|default(0) }},
+                        panturrilha_esquerda: {{ avaliacao.panturrilha_esquerda|default(0) }}
+                    }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ];
+
+            // Configuração inicial do gráfico
+            let chart = null;
+
+            function criarGrafico(medida) {
+                const ctx = document.getElementById('evolucaoChart').getContext('2d');
+                
+                // Destruir gráfico anterior se existir
+                if (chart) {
+                    chart.destroy();
+                }
+
+                // Preparar dados para o gráfico
+                const dados = {
+                    labels: avaliacoes.map(a => a.data),
+                    datasets: [{
+                        label: document.getElementById('medida-select').options[document.getElementById('medida-select').selectedIndex].text,
+                        data: avaliacoes.map(a => a[medida]),
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                };
+
+                // Criar novo gráfico
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: dados,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Evolução ao Longo do Tempo'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toFixed(1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Atualizar gráfico quando mudar a medida selecionada
+            document.getElementById('medida-select').addEventListener('change', function() {
+                criarGrafico(this.value);
+            });
+
+            // Criar gráfico inicial
+            window.addEventListener('load', function() {
+                criarGrafico('peso');
+            });
+        </script>
+    {% else %}
+        <div class="no-data-message">
+            <p>Não há avaliações anteriores para este aluno.</p>
+            <p>Clique em "Cadastrar Avaliação" para adicionar a primeira avaliação.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function toggleAvaliationData(index) {
+        const dataDiv = document.getElementById(`dados-avaliacao-${index}`);
+        const button = dataDiv.previousElementSibling.querySelector('.btn-blue');
+        const toggleText = button.querySelector('.toggle-text');
+        
+        if (dataDiv.style.display === "none") {
+            dataDiv.style.display = "block";
+            toggleText.textContent = "Ocultar Detalhes";
+        } else {
+            dataDiv.style.display = "none";
+            toggleText.textContent = "Mostrar Detalhes";
+        }
+    }
+</script>
+{% endblock %}
