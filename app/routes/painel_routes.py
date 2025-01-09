@@ -18,6 +18,12 @@ def painel_controle():
     nome_mes = f"{meses[mes - 1].capitalize()} de {ano}" 
     contas = mostrar_contas(mes, ano)
     entrada_valores = mostrar_valores(mes, ano)
+
+    for entrada in entrada_valores:
+        if 'data_pagamento' in entrada and entrada['data_pagamento']:
+          entrada['data_pagamento'] = entrada['data_pagamento'].strftime('%d-%m-%Y')
+
+           
     try:
         cnx = get_db_connection()
         cursor = cnx.cursor(dictionary=True)
@@ -25,7 +31,7 @@ def painel_controle():
         cursor.execute("SELECT id, nome FROM usuarios")
         usuarios = cursor.fetchall()
         
-        print(f"usuario_id: {usuario_id}")
+
         
         if usuario_id:
             cursor.execute("""
@@ -63,7 +69,7 @@ def mostrar_contas():
 
         
         cursor.execute("""
-            SELECT descricao, valor, data_vencimento, status
+            SELECT  id, descricao,valor, data_vencimento, status
             FROM contas
             WHERE MONTH(data_vencimento) = %s
             AND YEAR(data_vencimento) = %s
@@ -96,7 +102,7 @@ def mostrar_contas(mes, ano):
 
         
         cursor.execute("""
-            SELECT descricao, valor, data_vencimento, status
+            SELECT id,descricao, valor, data_vencimento, status
             FROM contas
             WHERE MONTH(data_vencimento) = %s
             AND YEAR(data_vencimento) = %s
@@ -195,7 +201,6 @@ def lancar_pagamentos_em_entradas():
         
         
         pagamentos = cursor.fetchall()
-        print(f"Pagamentos encontrados: {pagamentos}")
         
 
         for pagamento in pagamentos:
@@ -219,7 +224,6 @@ def lancar_pagamentos_em_entradas():
 
         cnx.commit()
         
-        print("Dados commitados")
         
     except mysql.connector.Error as e:
         
@@ -234,7 +238,6 @@ def lancar_pagamentos_em_entradas():
 
 @painel_routes.route('/financeiro/pagar/<int:id>/<int:usuario_id>', methods=['POST'])
 def pagar_financeiro(id, usuario_id):
-    print('foi chamado')
 
     try:
         
@@ -260,4 +263,52 @@ def pagar_financeiro(id, usuario_id):
 @painel_routes.route('/lancar_pagamentos', methods=['GET'])
 def lancar_pagamentos():
     lancar_pagamentos_em_entradas()
+    return redirect(url_for('painel_routes.painel_controle'))
+
+
+
+
+# Método para pagar a conta
+@painel_routes.route('/pagar_conta/<int:conta_id>', methods=['POST'])
+def pagar_conta(conta_id):
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = "UPDATE contas SET status = 'pago' WHERE id= %s"
+        cursor.execute(query,(conta_id,)) 
+        print('chegamos aqui')   
+
+        conn.commit()
+        flash("conta paga com sucesso", "success")
+        print("conta paga")
+    except mysql.connector.Error as err:
+        flash(f"error ao pagar a conta: {err}", "error")
+    finally:
+        cursor.close()
+        conn.close()
+        
+    return redirect(url_for('painel_routes.painel_controle'))
+
+
+@painel_routes.route('/excluir_conta/<int:conta_id>', methods=['POST'])
+def excluir_conta(conta_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Deletar conta pelo ID
+        query = "DELETE FROM contas WHERE id = %s"
+        cursor.execute(query, (conta_id,))
+        
+        conn.commit()
+        flash("Conta excluída com sucesso!", "success")
+    except mysql.connector.Error as err:
+        flash(f"Erro ao excluir conta: {err}", "error")
+    finally:
+        cursor.close()
+        conn.close()
+    
+    # Redirecionar de volta para o painel
     return redirect(url_for('painel_routes.painel_controle'))

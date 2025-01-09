@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="agenda-container">
+    <div class="agenda-header">
+        <h2>Novo Agendamento</h2>
+    </div>
+
+    <div class="agenda-form">
+        <!-- Exibe mensagem de erro, se houver -->
+        {% if error_message %}
+            <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
+
+        <form action="{{ url_for('agenda_routes.criar_agenda') }}" method="POST">
+            <div class="form-group">
+                <label for="usuario_id">Usuário:</label>
+                <select name="usuario_id" id="usuario_id" required>
+                    {% for usuario in usuarios %}
+                        <option value="{{ usuario[0] }}">{{ usuario[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="data">Data:</label>
+                <input type="date" id="data" name="data" required>
+            </div>
+
+            <div class="form-group">
+                <label for="horario">Horário</label>
+                <select id="horario" name="horario" required>
+                    {% for horario in horarios %}
+                        <option value="{{ horario }}">{{ horario }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="duracao">Duração:</label>
+                <select name="duracao" id="duracao">
+                    <option value="00:10">00:10</option>
+                    <option value="00:20">00:20</option>
+                    <option value="00:30">00:30</option>
+                    <option value="00:40">00:40</option>
+                    <option value="00:50">00:50</option>
+                    <option value="01:00">01:00</option>
+                    <option value="01:10">01:10</option>
+                    <option value="01:20">01:20</option>
+                    <option value="01:30">01:30</option>
+                    <option value="01:40">01:40</option>
+                    <option value="01:50">01:50</option>
+                    <option value="02:00">02:00</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <input type="text" id="tipo" name="tipo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea id="descricao" name="descricao" required></textarea>
+            </div>
+
+            <!-- Opção de repetição semanal -->
+            <div class="form-group">
+                <label for="repetir">Repetir Semanalmente:</label>
+                <input type="checkbox" name="repetir" id="repetir">
+            </div>
+
+            <!-- Duração da repetição em meses (se "Repetir Semanalmente" for marcado) -->
+            <div class="form-group" id="duracao_repeticao_container" style="display:none;">
+                <label for="duracao_repeticao">Por quantos meses?</label>
+                <input type="number" name="duracao_repeticao" id="duracao_repeticao" min="1" value="6">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Criar Agenda</button>
+        </form>
+    </div>
+
+    <div class="back-button">
+        <div class="button-group">
+            <a href="{{ url_for('agenda_routes.agenda') }}" class="btn btn-danger">Voltar à Agenda</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mostrar ou esconder o campo de duração da repetição baseado na seleção do checkbox
+    document.getElementById('repetir').addEventListener('change', function() {
+        var duracaoRepeticaoContainer = document.getElementById('duracao_repeticao_container');
+        if (this.checked) {
+            duracaoRepeticaoContainer.style.display = 'block';
+        } else {
+            duracaoRepeticaoContainer.style.display = 'none';
+        }
+    });
+</script>
+
+{% endblock %}

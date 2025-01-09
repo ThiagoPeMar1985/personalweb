@@ -3,19 +3,35 @@ from app.database import get_db_connection
 from datetime import datetime
 import calendar
 
+
 financeiro_routes = Blueprint('financeiro_routes', __name__)
 
 @financeiro_routes.route('/financeiro/<int:usuario_id>', methods=['GET'])
 def financeiro(usuario_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)  
+
     
     cursor.execute('SELECT * FROM financeiro WHERE usuario_id = %s ORDER BY data_pagamento', (usuario_id,))
     financeiro = cursor.fetchall()  
     
     cursor.execute('SELECT nome, id  FROM usuarios WHERE id = %s', (usuario_id,))
     usuario = cursor.fetchone()  
-    
+
+    entrada_valores = historico_pagamentos(usuario_id)
+
+    for entrada in financeiro:
+        if 'data_pagamento' in entrada and entrada['data_pagamento']:
+            entrada['data_pagamento'] = entrada['data_pagamento'].strftime('%d-%m-%Y')
+
+
+
+    for entrada in entrada_valores:
+        if 'data_pagamento' in entrada and entrada['data_pagamento']:
+            entrada['data_pagamento'] = entrada['data_pagamento'].strftime('%d-%m-%Y')
+
+
+
     cursor.close()
     conn.close()
     
@@ -23,7 +39,7 @@ def financeiro(usuario_id):
         flash("Usuário não encontrado.")
         return redirect(url_for('auth_routes.login'))
 
-    return render_template('financeiro.html', financeiro=financeiro, usuario=usuario, usuario_id=usuario_id)
+    return render_template('financeiro.html', financeiro=financeiro, usuario=usuario, usuario_id=usuario_id, entrada_valores=entrada_valores )
 
 
 @financeiro_routes.route('/financeiro/cadastrar/<int:usuario_id>', methods=['GET', 'POST'])
@@ -43,7 +59,6 @@ def cadastrar_financeiro(usuario_id):
         data_inicio = request.form['data_pagamento']
         status = request.form['status']
         observacao = request.form['observacao']
-        print(f"Status recebido: {status}")
         
         pagamentos = gerar_pagamentos(data_inicio, valor, meses_contratados)
         
@@ -56,7 +71,6 @@ def cadastrar_financeiro(usuario_id):
         conn.commit()
         cursor.close()
         conn.close()
-        print(f"Pagamentos cadastrados: {pagamentos}")
         flash('Dados financeiros cadastrados com sucesso!', 'success')
         return redirect(url_for('financeiro_routes.financeiro', usuario_id=usuario_id))
 
@@ -88,14 +102,11 @@ def gerar_pagamentos(data_inicio, valor, meses_contratados):
         
         status = request.form['status']
 
-        if status == "Pago": 
-             pass 
-
-        if data_pagamento < datetime.now():
-            status = "Atrasado"
-
-        elif data_pagamento >= datetime.now():
-            status = "Pendente"
+        if status != "Pago":  
+            if data_pagamento < datetime.now():
+                status = "Atrasado"
+            elif data_pagamento >= datetime.now():
+                status = "Pendente"
 
         pagamentos.append({
             "data_pagamento": data_pagamento.strftime('%y/%m/%d'),
@@ -144,6 +155,40 @@ def excluir_financeiro(usuario_id, id):
 
 
 
+
+def historico_pagamentos(usuario_id, ano=None):
+    from datetime import datetime
+    entrada_valores = []
+
+    if ano is None:
+        ano = datetime.now().year
+
+    try:
+        # Conexão com o banco de dados
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Consulta SQL
+        query = """
+            SELECT v.usuario_id, u.nome, v.data_pagamento, v.valor_pago
+            FROM valores v
+            JOIN usuarios u ON v.usuario_id = u.id
+            WHERE v.usuario_id = %s AND YEAR(v.data_pagamento) = %s
+            ORDER BY v.data_pagamento DESC
+        """
+        cursor.execute(query, (usuario_id, ano))
+        entrada_valores = cursor.fetchall()
+
+    except Exception as e:
+        flash(f"Erro ao acessar o banco de dados: {e}", 'error')
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return entrada_valores
+    
 
 
 

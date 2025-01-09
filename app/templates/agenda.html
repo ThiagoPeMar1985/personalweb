@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Agenda de Treinamentos{% endblock %}
+
+{% block content %}
+<div class="painel-container">
+    <h1 class="page-title">Agenda Semanal</h1>
+  
+
+    <div class="filter-section">
+        <form method="GET" action="{{ url_for('agenda_routes.agenda') }}" class="user-filter">
+            <a href="{{ url_for('agenda_routes.criar_agenda') }}" class="btn btn-primary">Agendar aluno</a>
+            <button id="btn-edicoes" class="btn btn-training">Editar Agenda</button>
+            <div id="semana-mes" class="semana-mes"><strong>Estamos na {{ semanaDoMes }}ª semana de  {{ mesAtual }}.</strong></div>
+        </form>
+    </div>
+
+    <div class="agenda-grid">
+        {% set dias_semana_traduzidos = {
+            "Monday": "Segunda", 
+            "Tuesday": "Terça", 
+            "Wednesday": "Quarta", 
+            "Thursday": "Quinta", 
+            "Friday": "Sexta", 
+            "Saturday": "Sábado", 
+            "Sunday": "Domingo" 
+        } %}
+
+        {% for dia in dias %}
+            <div class="agenda-day" id="dia_{{ loop.index }}">
+                <div class="agenda-day-header">
+                    <h4>{{ dias_semana_traduzidos[dia] }}</h4>
+                </div>
+                <div class="agenda-day-content">
+                    {% set has_agendamentos = false %} 
+
+                    {% for agendamento in agenda %}
+                        {% if agendamento['dia_semana'] == dia %}
+                            {% set has_agendamentos = true %}
+                            <div class="agendamento-item">
+                                <p>{{ agendamento['id'] }}</p>
+                                <p><strong>{{ agendamento['aluno'] }}</strong></p>
+                                <p>{{ agendamento['horario'] }} / {{ agendamento['horario_final'] }}</p>
+                                <p>{{ agendamento['tipo'] }}</p>
+                                <p>{{ agendamento['data'].strftime('%d/%m/%y') }}</p> 
+                                <div class="action-buttons" style="display: none;">
+                                    <form action="{{ url_for('agenda_routes.excluir_agendamento', id=agendamento['id']) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger">Excluir</button>
+                                    </form>
+                                    <a href="{{ url_for('agenda_routes.editar_agendamento', id=agendamento['id']) }}" class="btn btn-primary">Editar</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not has_agendamentos %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const diasSemana = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"];
+
+        diasSemana.forEach(function(dia, index) {
+            const diaElement = document.getElementById("dia_" + (index + 1)); 
+            const conteudoAgenda = diaElement.querySelector('.agenda-day-content'); 
+
+            if (conteudoAgenda && conteudoAgenda.querySelectorAll('.agendamento-item').length === 0) {
+                diaElement.style.display = 'none'; 
+            }
+        });
+
+        const btnEdicoes = document.getElementById("btn-edicoes");
+        const actionButtons = document.querySelectorAll(".action-buttons");
+
+        btnEdicoes.addEventListener("click", function(event) {
+            event.preventDefault(); // Impede o recarregamento da página
+            actionButtons.forEach(function(buttons) {
+                buttons.style.display = buttons.style.display === "none" ? "block" : "none";
+            });
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+        // Cálculo da semana do mês
+        const dataAtual = new Date();
+        const diaDoMes = dataAtual.getDate();
+        const semanaDoMes = Math.ceil(diaDoMes / 7);
+        const mesAtual = dataAtual.toLocaleString('default', { month: 'long' }); // Nome do mês
+
+        // Atualizar o elemento com a semana e mês
+        const semanaMesElement = document.getElementById("semana-mes");
+        semanaMesElement.textContent = `Estamos na ${semanaDoMes}ª semana do mês de ${mesAtual}.`;
+    });
+</script>
+
+{% endblock %}

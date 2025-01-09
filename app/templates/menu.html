@@ -7,6 +7,7 @@
         <div class="menu-actions">
             <a href="{{ url_for('admin_routes.criar_usuario') }}" class="btn btn-primary">Criar Usuário</a>
             <a href="{{ url_for('painel_routes.painel_controle') }}" class="btn btn-finance">Painel financeiro</a>
+            <a href="{{ url_for('agenda_routes.agenda') }}" class="btn btn-primary">Agenda</a>
             <a href="{{ url_for('auth_routes.logout') }}" class="btn btn-danger">Sair</a>
         </div>
     </div>
@@ -27,13 +28,14 @@
                         <td>{{ usuario.nome }}</td>
                         <td>
                             <div class="user-actions">
-                                <a href="{{ url_for('admin_routes.editar_usuario', id=usuario.id) }}" class="btn btn-edit">Editar</a>
-                                <form action="{{ url_for('admin_routes.excluir_usuario', id=usuario.id) }}" method="POST" style="display:inline;">
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</button>
-                                </form>
                                 <a href="{{ url_for('aluno_routes.mostrar_aluno', nome=usuario.nome) }}" class="btn btn-evaluation">Avaliação</a>
                                 <a href="{{ url_for('aluno_routes.treinos', user_id=usuario.id) }}" class="btn btn-training">Treinos</a>
                                 <a href="{{ url_for('financeiro_routes.financeiro', usuario_id=usuario.id) }}" class="btn btn-finance">Financeiro</a>
+                                <a href="{{ url_for('admin_routes.editar_usuario', id=usuario.id) }}" class="btn btn-edit">Editar</a>
+                                <form action="{{ url_for('admin_routes.excluir_usuario', id=usuario.id) }}" method="POST" style="display:inline;">
+                                    
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</button>
+                                </form>
                             </div>
                         </td>
                     </tr>

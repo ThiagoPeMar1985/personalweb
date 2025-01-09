@@ -7,6 +7,7 @@ from .routes.aluno_routes import aluno_routes
 from .routes.admin_routes import admin_routes
 from .routes.financeiro_routes import financeiro_routes
 from .routes.painel_routes import painel_routes
+from .routes.agenda_routes import agenda_routes
 
 from .database import get_db_connection
 
@@ -21,5 +22,6 @@ def create_app():
     app.register_blueprint(admin_routes)
     app.register_blueprint(financeiro_routes)
     app.register_blueprint(painel_routes)
+    app.register_blueprint(agenda_routes)
 
     return app

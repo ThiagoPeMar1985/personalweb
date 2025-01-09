@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, flash, session, redirect, url_for
 from app.database import get_db_connection
+from .agenda_routes import obter_agenda_usuario , calcular_horario_final_com_busca, buscar_duracao
+from datetime import datetime
 
 aluno_routes = Blueprint('aluno_routes', __name__)
 
@@ -14,27 +16,23 @@ def alunos():
     avaliacoes = []
     treinos = []
     usuario_id = None
+    usuario = None  
+    agenda = []
+    
 
     try:
         cnx = get_db_connection()
         cursor = cnx.cursor(dictionary=True)
 
         if username:
-            query_usuario = "SELECT id FROM usuarios WHERE username = %s"
+            query_usuario = "SELECT * FROM usuarios WHERE username = %s"
             cursor.execute(query_usuario, (username,))
             usuario = cursor.fetchone()
             
             if usuario:
                 usuario_id = usuario['id']
+                nome = usuario['nome'] 
 
-                # Consultar o nome do usuário diretamente
-                query_nome = "SELECT nome FROM usuarios WHERE username = %s"
-                cursor.execute(query_nome, (username,))
-                nome_resultado = cursor.fetchone()
-                if nome_resultado:
-                    nome = nome_resultado['nome']
-
-                # Buscar avaliações e treinos associados ao usuário
                 query_aluno = "SELECT * FROM alunos WHERE usuario_id = %s"
                 cursor.execute(query_aluno, (usuario_id,))
                 avaliacoes = cursor.fetchall()
@@ -42,6 +40,27 @@ def alunos():
                 query_treinos = "SELECT * FROM treinos WHERE usuario_id = %s"
                 cursor.execute(query_treinos, (usuario_id,))
                 treinos = cursor.fetchall()
+                
+                agenda = obter_agenda_usuario(usuario_id)
+                for agendamento in agenda:
+                    print(f"Processando agendamento: {agendamento}")
+                    agendamento['horario_final'] = calcular_horario_final_com_busca(usuario_id)
+                    print(f"Horário final calculado: {agendamento['horario_final']}")
+                    agendamento['duracao'] = buscar_duracao(agendamento['id'])
+                    if agendamento['data'] < datetime.now().date():
+                        agendamento['status'] = 'ok'
+                    else:
+                        agendamento['status'] = 'pendente'
+
+                # Filtrar os agendamentos para mostrar apenas os pendentes
+                agenda = [agendamento for agendamento in agenda if agendamento['status'] == 'pendente']
+
+                # Ordenar a agenda pelo horário
+                agenda = sorted(agenda, key=lambda x: x['horario'])
+
+                return render_template('alunos.html', usuario_id=usuario_id, agenda=agenda, nome=nome, avaliacoes=avaliacoes, treinos=treinos,usuario=usuario)
+           
+
 
             else:
                 flash("Usuário não encontrado.", "error")
@@ -55,8 +74,10 @@ def alunos():
         cnx.close()
     except Exception as e:
         flash(f"Erro ao acessar o banco de dados: {e}", "error")
-
-    return render_template('alunos.html', nome=nome, usuario_id=usuario_id, avaliacoes=avaliacoes, treinos=treinos)
+   
+    
+    print(agenda)
+    return render_template('alunos.html', nome=nome, usuario_id=usuario_id, avaliacoes=avaliacoes, treinos=treinos,usuario=usuario, agenda=agenda,)
 
 @aluno_routes.route('/cadastro_aluno/<int:usuario_id>/<nome>', methods=['GET', 'POST'])
 def cadastro_aluno(usuario_id, nome):
@@ -68,8 +89,6 @@ def cadastro_aluno(usuario_id, nome):
     if request.method == 'POST':
         # Obtendo os dados do formulário
         idade = request.form['idade']
-        endereco = request.form['endereco']
-        telefone = request.form['telefone']
         altura = request.form['altura']
         peso = request.form['peso']
         imc = request.form['imc']
@@ -101,7 +120,7 @@ def cadastro_aluno(usuario_id, nome):
         # Inserir dados na tabela de alunos
         query = '''
             INSERT INTO alunos (
-                usuario_id, nome, idade, endereco, telefone, altura, peso, imc,
+                usuario_id, nome, idade, altura, peso, imc,
                 porcentagem_gordura, porcentagem_musculo, taxa_metabolica_basal,
                 idade_media, gordura_visceral, pescoco, ombro, torax, cintura, abdominal,
                 quadril, braco_direito, braco_esquerdo, braco_circulo_direito,
@@ -110,11 +129,11 @@ def cadastro_aluno(usuario_id, nome):
                 panturrilha_esquerda, panturrilha_direita
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s,%s,%s,%s
+                %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s,%s
             )
         '''
         cursor.execute(query, (
-            usuario_id, nome, idade, endereco, telefone, altura, peso, imc,
+            usuario_id, nome, idade, altura, peso, imc,
             porcentagem_gordura, porcentagem_musculo, taxa_metabolica_basal,
             idade_media, gordura_visceral, pescoco, ombro, torax, cintura, abdominal,
             quadril, braco_direito, braco_esquerdo, braco_circulo_direito,
@@ -265,3 +284,20 @@ def excluir_avaliacao(avaliacao_id):
 
     flash('Avaliação excluída com sucesso!', 'success')
     return redirect(url_for('aluno_routes.mostrar_aluno', nome=request.args.get('nome')))
+
+@aluno_routes.route('/adicionar_status_agenda', methods=['GET'])
+def adicionar_status_agenda():
+    cnx = get_db_connection()
+    cursor = cnx.cursor()
+
+    query = """
+    ALTER TABLE agenda ADD COLUMN status VARCHAR(10) DEFAULT 'pendente';
+    """
+    cursor.execute(query)
+    cnx.commit()
+
+    cursor.close()
+    cnx.close()
+
+    flash('Status adicionado com sucesso!', 'success')
+    return redirect(url_for('aluno_routes.alunos'))

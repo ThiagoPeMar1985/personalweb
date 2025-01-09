@@ -33,9 +33,12 @@
                                 <td>{{ item['data_pagamento'] }}</td>
                                 <td>R$ {{ "%.2f"|format(item['valor']|float) }}</td>
                                 <td>
-                                    <span class="status-badge {% if item['status'] == 'Pago' %}status-paid{% elif item['status'] == 'Pendente' %}status-pending{% else %}status-late{% endif %}">
+                                    <span class="status-badge 
+                                        {% if item['status']|lower == 'pago' %}status-paid
+                                        {% elif item['status']|lower == 'pendente' %}status-pending
+                                        {% else %}status-late{% endif %}">
                                         {{ item['status'] }}
-                                    </span>
+                                    </span> 
                                 </td>
                                 <td class="actions-column">
                                     <div class="btn-group">
@@ -60,42 +63,32 @@
         </div>
     {% endif %}
 
-    <div class="card mt-4">
-        <div class="card-header">
-            <h3>Histórico de Pagamentos</h3>
-        </div>
-        <div class="card-body">
-            {% if pagamentos %}
-                <div class="payment-list">
-                    {% for pagamento in pagamentos %}
-                        <div class="payment-item">
-                            <div class="payment-info">
-                                <div class="payment-date">
-                                    <i class="fas fa-calendar"></i>
-                                    {{ pagamento.data_pagamento }}
-                                </div>
-                                <div class="payment-value">
-                                    <i class="fas fa-dollar-sign"></i>
-                                    R$ {{ "%.2f"|format(pagamento.valor|float) }}
-                                </div>
-                                <div class="payment-status">
-                                    <span class="status-badge {% if pagamento.status == 'Pendente' %}status-pending{% elif pagamento.status == 'Atrasado' %} status-late {% elif pagamento.status == 'pago' %}status-paid{% endif %}">
-                                        {{ pagamento.status }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+    <div class="panel-section">
+        <h2>Historico de Entradas</h2>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Valor</th>
+                        <th>Data de pagamento</th>
+                    </tr>
+                </thead>
+                <tbody> 
+                    {% for entrada in entrada_valores %}
+                    <tr>
+                        <td>{{ entrada.nome }}</td>
+                        <td class="valor">R$ {{ entrada.valor_pago }}</td>
+                        <td>{{ entrada.data_pagamento }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="no-data">Nenhuma entrada encontrada para este mês.</td>
+                    </tr>
                     {% endfor %}
-                </div>
-            {% else %}
-                <div class="no-data-message">
-                    <p>Nenhum pagamento registrado.</p>
-                </div>
-            {% endif %}
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
-
-
 
 {% endblock %}

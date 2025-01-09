@@ -143,33 +143,33 @@ input, select, textarea {
 
 /* Botão Financeiro - Verde */
 .btn-finance {
-    background-color: #27ae60;
+    background-color: #025525;
     color: white;
 }
 
 .btn-finance:hover {
-    background-color: #219a52;
+    background-color: #19793f;
 }
 
 /* Botão de Treino - Amarelo */
 .btn-training {
-    background-color: #f1c40f;
+    background-color: #5a4802;
     color: white;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2); /* Adiciona um leve sombreamento para melhor legibilidade */
 }
 
 .btn-training:hover {
-    background-color: #f39c12;
+    background-color: #b4a624;
 }
 
 /* Botão de Avaliação - Azul */
 .btn-evaluation {
-    background-color: #3498db;
+    background-color: #5a89a8;
     color: white;
 }
 
 .btn-evaluation:hover {
-    background-color: #2980b9;
+    background-color: #283e4d;
 }
 
 /* Botão de Edição - Cinza */
@@ -179,17 +179,17 @@ input, select, textarea {
 }
 
 .btn-edit:hover {
-    background-color: #6c7a7b;
+    background-color: #2e3535;
 }
 
 /* Botão de Perigo - Vermelho */
 .btn-danger {
-    background-color: #e74c3c;
+    background-color: #5f0c03;
     color: white;
 }
 
 .btn-danger:hover {
-    background-color: #c0392b;
+    background-color: #9c2d21;
 }
 
 /* Botão Verde */
@@ -199,27 +199,27 @@ input, select, textarea {
 }
 
 .btn-green:hover {
-    background-color: #45a049; /* Verde mais escuro */
+    background-color: #328637; /* Verde mais escuro */
 }
 
 /* Botão Azul */
 .btn-slate {
-    background-color: #475569;
+    background-color: #343a44;
     color: white;
 }
 
 .btn-slate:hover {
-    background-color: #334155; /* Azul mais escuro */
+    background-color: #1e2733; /* Azul mais escuro */
 }
 
 /* Botão Vermelho */
 .btn-red {
-    background-color: #e74c3c; /* Vermelho */
+    background-color: #c93626; /* Vermelho */
     color: white;
 }
 
 .btn-red:hover {
-    background-color: #c0392b; /* Vermelho mais escuro */
+    background-color: #9e2c20; /* Vermelho mais escuro */
 }
 
 /* Botão Azul */
@@ -559,6 +559,7 @@ input, select, textarea {
     color: var(--cor-primaria);
     margin-bottom: 20px;
     font-size: 1.5em;
+
 }
 
 .data-table {
@@ -1315,12 +1316,14 @@ footer p {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
     margin-bottom: 30px;
+   
 }
 
 .detail-item {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    
 }
 
 .detail-item.full-width {
@@ -1604,4 +1607,169 @@ footer p {
     .btn-group {
         flex-direction: column;
     }
+}
+/* Estilos gerais para a agenda */
+.agenda-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* Uma coluna para cada dia da semana */
+    gap: 20px;
+}
+
+/* Estilo para cada dia da agenda */
+.agenda-day {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+/* Estilo para o cabeçalho de cada dia */
+.agenda-day-header {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    border-radius: 5px 5px 0 0;
+}
+
+/* Estilo para o conteúdo de cada dia */
+.agenda-day-content {
+    padding: 10px;
+}
+
+/* Estilo para cada item de agendamento */
+.agendamento-item {
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #ffffff;
+}
+
+/* Estilo para a mensagem de "sem agendamentos" */
+.no-agendamentos {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
+
+/* Media Queries para Responsividade */
+@media (max-width: 768px) 
+    .agenda-grid {
+        grid-template-columns: repeat(2, 1fr); /* Duas colunas em telas menores */
+    }
+
+    .agenda-day {
+        padding: 5px; /* Reduzir o padding em telas menores */
+    }
+
+    .agendamento-item {
+        padding: 3px; /* Reduzir o padding dos itens de agendamento */
+}
+.alert.alert-danger {
+    border: 2px solid red;
+    color: red;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Ajustes para garantir que fique visível em telas menores (mobile) */
+@media (max-width: 600px) {
+    .alert.alert-danger {
+        font-size: 14px;
+        padding: 12px;
+        margin: 10px 0;
+    }
+    .agenda-header h2 {
+        text-align: center; /* Centraliza o texto */
+        margin: 0; /* Remove margens padrão */
+        padding: 10px 0; /* Adiciona um pouco de espaço acima e abaixo */
+    }
+}   
+    
+.header-date {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-size: 1.2em;
+    border-radius: 5px;
+}
+
+.painel-container {
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 600px;
+}
+
+.page-title {
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.filter-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.agenda-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.agenda-day {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.agenda-day-header {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.agendamento-item {
+    margin: 10px 0;
+}
+
+.no-agendamentos {
+    color: #888;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .painel-container {
+        padding: 10px;
+    }
+    .page-title {
+        font-size: 1.2em;
+    }
+}
+
+.semana-mes {
+    color: #333;
+    font-size: 1.2em;
+    margin: 10px 0;
+    font-weight: bold;
+    text-align: center;
+    background-color: #eeeeee;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.full-width-header {
+    background-color: black; 
+    color: white; 
+    padding: 10px; 
+    width: 100%; 
+    box-sizing: border-box; 
+    margin: 0;
 }

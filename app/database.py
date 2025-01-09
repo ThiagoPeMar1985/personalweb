@@ -24,6 +24,7 @@ def create_app():
     app.register_blueprint(admin_routes)
     app.register_blueprint(financeiro_routes)
     app.register_blueprint(painel_routes)
+    app.register_blueprint(agenda_routes)
 
     return app
 

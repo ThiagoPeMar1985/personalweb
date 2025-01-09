@@ -5,25 +5,34 @@
 {% block content %}
 <h2>Lançar Nova Conta</h2>
 
-<form method="POST">
-    <label for="descricao">Descrição:</label>
-    <input type="text" id="descricao" name="descricao" required>
+<form method="POST" class="form-container">
+    <div class="form-group">
+        <label for="descricao">Descrição:</label>
+        <input type="text" id="descricao" name="descricao" required class="form-input">
+    </div>
 
-    <label for="valor">Valor:</label>
-    <input type="number" id="valor" name="valor" required>
+    <div class="form-group">
+        <label for="valor">Valor:</label>
+        <input type="number" id="valor" name="valor" required class="form-input">
+    </div>
 
-    <label for="data_vencimento">Data de Vencimento:</label>
-    <input type="date" id="data_vencimento" name="data_vencimento" required>
+    <div class="form-group">
+        <label for="data_vencimento">Data de Vencimento:</label>
+        <input type="date" id="data_vencimento" name="data_vencimento" required class="form-input">
+    </div>
 
-    <label for="status">Status:</label>
-    <select id="status" name="status" required>
-        <option value="aberto">Aberto</option>
-        <option value="pago">Pago</option>
-    </select>
+    <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" name="status" required class="form-input">
+            <option value="pendente">Pendente</option>
+            <option value="pago">Pago</option>
+        </select>
+    </div>
 
-    <button type="submit">Lançar Conta</button>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-finance">Lançar Conta</button>
+        <a href="{{ url_for('painel_routes.painel_controle') }}" class="btn btn-danger">Voltar ao Painel Financeiro</a>
+    </div>
 </form>
-
-<a href="{{ url_for('painel_routes.painel_controle') }}" class="btn-red">Voltar ao Painel Financeiro</a>
 
 {% endblock %}
