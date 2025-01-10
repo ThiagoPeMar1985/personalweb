@@ -40,26 +40,20 @@ def alunos():
                 query_treinos = "SELECT * FROM treinos WHERE usuario_id = %s"
                 cursor.execute(query_treinos, (usuario_id,))
                 treinos = cursor.fetchall()
-                
+
                 agenda = obter_agenda_usuario(usuario_id)
+
+                if agenda: 
+                    agenda = [agendamento for agendamento in agenda if 'data' in agendamento and agendamento['data'] >= datetime.now().date()]
+                    agenda = sorted(agenda, key=lambda x: x['horario'])
+                else:
+                    print("Nenhum agendamento encontrado.")
+                    
                 for agendamento in agenda:
-                    print(f"Processando agendamento: {agendamento}")
                     agendamento['horario_final'] = calcular_horario_final_com_busca(usuario_id)
-                    print(f"Horário final calculado: {agendamento['horario_final']}")
                     agendamento['duracao'] = buscar_duracao(agendamento['id'])
-                    if agendamento['data'] < datetime.now().date():
-                        agendamento['status'] = 'ok'
-                    else:
-                        agendamento['status'] = 'pendente'
-
-                # Filtrar os agendamentos para mostrar apenas os pendentes
-                agenda = [agendamento for agendamento in agenda if agendamento['status'] == 'pendente']
-
-                # Ordenar a agenda pelo horário
-                agenda = sorted(agenda, key=lambda x: x['horario'])
-
+                    
                 return render_template('alunos.html', usuario_id=usuario_id, agenda=agenda, nome=nome, avaliacoes=avaliacoes, treinos=treinos,usuario=usuario)
-           
 
 
             else:
@@ -76,18 +70,17 @@ def alunos():
         flash(f"Erro ao acessar o banco de dados: {e}", "error")
    
     
-    print(agenda)
     return render_template('alunos.html', nome=nome, usuario_id=usuario_id, avaliacoes=avaliacoes, treinos=treinos,usuario=usuario, agenda=agenda,)
 
 @aluno_routes.route('/cadastro_aluno/<int:usuario_id>/<nome>', methods=['GET', 'POST'])
 def cadastro_aluno(usuario_id, nome):
-    # Conectar ao banco de dados
+   
     cnx = get_db_connection()
     cursor = cnx.cursor()
 
-    # Se o método for POST, processa os dados do formulário
+  
     if request.method == 'POST':
-        # Obtendo os dados do formulário
+        
         idade = request.form['idade']
         altura = request.form['altura']
         peso = request.form['peso']
@@ -117,7 +110,7 @@ def cadastro_aluno(usuario_id, nome):
         panturrilha_esquerda = request.form['panturrilha_esquerda']
         panturrilha_direita = request.form['panturrilha_direita']
 
-        # Inserir dados na tabela de alunos
+
         query = '''
             INSERT INTO alunos (
                 usuario_id, nome, idade, altura, peso, imc,
@@ -142,17 +135,16 @@ def cadastro_aluno(usuario_id, nome):
             panturrilha_esquerda, panturrilha_direita
         ))
 
-        # Commit na transação
         cnx.commit()
 
-        # Fechar a conexão com o banco de dados
+
         cursor.close()
         cnx.close()
 
-        # Redirecionar ou retornar uma mensagem de sucesso
+
         return redirect(url_for('aluno_routes.mostrar_aluno', nome=nome))
 
-    # Se o método for GET, apenas renderiza o formulário
+
     return render_template('cadastro_aluno.html', usuario_id=usuario_id, nome=nome)
 
 @aluno_routes.route('/mostrar_aluno', methods=['GET'])
@@ -217,6 +209,8 @@ def treinos(user_id):
     cnx = get_db_connection()
     cursor = cnx.cursor(dictionary=True)
 
+    treinos = []
+
     query_usuario = "SELECT * FROM usuarios WHERE id = %s"
     cursor.execute(query_usuario, (user_id,))
     usuario = cursor.fetchone()
@@ -224,13 +218,13 @@ def treinos(user_id):
     if not usuario:
         return "Usuário não encontrado", 404
 
-    query_treinos = "SELECT * FROM treinos WHERE usuario_id = %s"
+    query_treinos = "SELECT * FROM treinos WHERE usuario_id = %s"   
     cursor.execute(query_treinos, (user_id,))
     treinos = cursor.fetchall()
 
     cursor.close()
     cnx.close()
-
+    print(user_id)
     return render_template('treinos.html', treinos=treinos, usuario=usuario)
 
 @aluno_routes.route('/excluir_treino/<int:user_id>', methods=['GET'])
@@ -284,20 +278,3 @@ def excluir_avaliacao(avaliacao_id):
 
     flash('Avaliação excluída com sucesso!', 'success')
     return redirect(url_for('aluno_routes.mostrar_aluno', nome=request.args.get('nome')))
-
-@aluno_routes.route('/adicionar_status_agenda', methods=['GET'])
-def adicionar_status_agenda():
-    cnx = get_db_connection()
-    cursor = cnx.cursor()
-
-    query = """
-    ALTER TABLE agenda ADD COLUMN status VARCHAR(10) DEFAULT 'pendente';
-    """
-    cursor.execute(query)
-    cnx.commit()
-
-    cursor.close()
-    cnx.close()
-
-    flash('Status adicionado com sucesso!', 'success')
-    return redirect(url_for('aluno_routes.alunos'))

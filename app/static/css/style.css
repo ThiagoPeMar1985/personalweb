@@ -1753,23 +1753,3 @@ footer p {
         font-size: 1.2em;
     }
 }
-
-.semana-mes {
-    color: #333;
-    font-size: 1.2em;
-    margin: 10px 0;
-    font-weight: bold;
-    text-align: center;
-    background-color: #eeeeee;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.full-width-header {
-    background-color: black; 
-    color: white; 
-    padding: 10px; 
-    width: 100%; 
-    box-sizing: border-box; 
-    margin: 0;
-}

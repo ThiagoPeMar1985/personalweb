@@ -23,24 +23,16 @@
                     <span class="detail-value"><strong>{{ agendamento.data.strftime('%d/%m/%Y') }}</strong></span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">id:</span>
-                    <span class="detail-value">{{ agendamento.id }}</span>
-                </div>
-                <div class="detail-item">
                     <span class="detail-label">Inicia :</span>
                     <span class="detail-value">{{ agendamento.horario }}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Duração:</span>
-                    <span class="detail-value">{{ agendamento.duracao }}</span>
+                    <span class="detail-label">Finaliza :</span>
+                    <span class="detail-value">{{ agendamento.horario_final }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Tipo:</span>
                     <span class="detail-value">{{ agendamento.tipo }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Finaliza :</span>
-                    <span class="detail-value">{{ agendamento.horario_final }}</span>
                 </div>
             </div>
         </div>
@@ -321,52 +313,41 @@
         {% endif %}
     </div>
 
-    <div class="treinos-container" id="treinos-container" style="display: none;">
-        <div class="treinos-container">
-            <div class="treinos-header">
-                <h2>Treinos</h2>
-                <div class="treinos-actions">
-                    <button class="btn btn-training" onclick="toggleVisibility('treinoA')">Treino A</button>
-                    <button class="btn btn-training" onclick="toggleVisibility('treinoB')">Treino B</button>  
-                    <button class="btn btn-training" onclick="toggleVisibility('treinoC')">Treino C</button>
-                    <button class="btn btn-training" onclick="toggleVisibility('treinoD')">Treino D</button>
-                    <button class="btn btn-training" onclick="toggleVisibility('treinoE')">Treino E</button>
-                    <button class="btn btn-training" onclick="toggleVisibility('treinoF')">Treino F</button>
-                    <button class="btn btn-training" onclick="toggleVisibility('treinoG')">Treino G</button>    
-                </div>
-            </div>
-        
-            <div class="treinos-content">
-                {% for letra in ['A', 'B', 'C', 'D', 'E', 'F', 'G'] %}
-                <div id="treino{{ letra }}" class="treino-panel" style="display: none;">
-                    <div class="treino-header">
-                        <h4>Treino {{ letra }}</h4>
-                    </div>
-                    <div class="treino-content">
-                        <div class="treino-exercises">
-                            {% set has_treino = false %}
-                            {% for treino in treinos %}
-                                {% if treino.nome_treino == letra %}
-                                    {% set has_treino = true %}
-                                    <div class="exercise-item">
-                                        <div class="exercise-name">{{ treino.exercicio }}</div>
-                                        <div class="exercise-details">
-                                            <span class="exercise-reps">{{ treino.repeticoes }} repetições</span>
-                                            <span class="exercise-weight">{{ treino.peso }} kg</span>
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                            {% if not has_treino %}
-                                <p class="no-exercises">Não há exercícios cadastrados para o Treino {{ letra }}.</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+    <div id="treinos-container" class="treinos-container" style="display: none;">
+        <div class="treinos-header">
+            <h2>Treinos de {{ usuario.nome }}</h2>
+            <div class="treinos-actions">
+                {% set treinos_unicos = treinos | groupby('nome_treino') %}
+                {% for grupo in treinos_unicos %}
+                    <button class="btn btn-training" onclick="toggleVisibility('treino{{ grupo.grouper }}')">Treino {{ grupo.grouper }}</button>
                 {% endfor %}
             </div>
         </div>
+    
+        <div class="treinos-content">
+            {% for grupo in treinos_unicos %}
+            <div id="treino{{ grupo.grouper }}" class="treino-panel" style="display: none;">
+                <div class="treino-header">
+                    <h4>Treino {{ grupo.grouper }}</h4>
+                </div>
+                <div class="treino-content">
+                    <div class="treino-exercises">
+                        {% for treino in grupo.list %}
+                            <div class="exercise-item">
+                                <div class="exercise-name">{{ treino.exercicio }}</div>
+                                <div class="exercise-details">
+                                    <span class="exercise-reps">{{ treino.repeticoes }} repetições</span>
+                                    <span class="exercise-weight">{{ treino.peso }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
+    
 
     <a href="{{ url_for('auth_routes.logout') }}" class="btn btn-danger">Sair</a>
 

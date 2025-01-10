@@ -5,13 +5,13 @@
 {% block content %}
 <div class="painel-container">
     <h1 class="page-title">Agenda Semanal</h1>
-  
+
 
     <div class="filter-section">
         <form method="GET" action="{{ url_for('agenda_routes.agenda') }}" class="user-filter">
             <a href="{{ url_for('agenda_routes.criar_agenda') }}" class="btn btn-primary">Agendar aluno</a>
             <button id="btn-edicoes" class="btn btn-training">Editar Agenda</button>
-            <div id="semana-mes" class="semana-mes"><strong>Estamos na {{ semanaDoMes }}ª semana de  {{ mesAtual }}.</strong></div>
+            <h4 id="semana-mes"></h4>
         </form>
     </div>
 
@@ -62,6 +62,7 @@
     <div class="action-buttons">
         <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar</a>
     </div>
+    
 </div>
 
 <script>
@@ -81,14 +82,12 @@
         const actionButtons = document.querySelectorAll(".action-buttons");
 
         btnEdicoes.addEventListener("click", function(event) {
-            event.preventDefault(); // Impede o recarregamento da página
+            event.preventDefault(); 
             actionButtons.forEach(function(buttons) {
                 buttons.style.display = buttons.style.display === "none" ? "block" : "none";
             });
         });
-    });
-    document.addEventListener("DOMContentLoaded", function() {
-        // Cálculo da semana do mês
+
         const dataAtual = new Date();
         const diaDoMes = dataAtual.getDate();
         const semanaDoMes = Math.ceil(diaDoMes / 7);
@@ -96,7 +95,7 @@
 
         // Atualizar o elemento com a semana e mês
         const semanaMesElement = document.getElementById("semana-mes");
-        semanaMesElement.textContent = `Estamos na ${semanaDoMes}ª semana do mês de ${mesAtual}.`;
+        semanaMesElement.textContent = `Estamos na ${semanaDoMes}ª semana de ${mesAtual}.`;
     });
 </script>
 
