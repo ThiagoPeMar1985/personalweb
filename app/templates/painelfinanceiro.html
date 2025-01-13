@@ -20,16 +20,16 @@
 
     <div class="summary-cards">
         <div class="summary-card">
-            <h3>Total Recebido</h3>
+            <h2 >Total Recebido</h2>
             <p class="amount">R$ {{ entrada_valores|sum(attribute='valor_pago')|round(2) }}</p>
         </div>
         <div class="summary-card">
-            <h3>Total Despesas</h3>
+            <h2>Total Despesas</h2>
             <p class="amount">R$ {{ contas|sum(attribute='valor')|round(2) }}</p>
         </div>
         <div class="summary-card">
-            <h3>Saldo</h3>
-            <p class="amount {% if entrada_valores|sum(attribute='valor_pago') - contas|sum(attribute='valor') >= 0 %}positive{% else %}negative{% endif %}">
+            <h2>Saldo</h2>
+            <p class="amount">
                 R$ {{ (entrada_valores|sum(attribute='valor_pago') - contas|sum(attribute='valor'))|round(2) }}
             </p>
         </div>
@@ -57,10 +57,15 @@
                 </thead>
                 <tbody>
                     {% for item in financeiro %}
-                        <tr class="{% if item['status'] == 'Pago' %}status-paid{% elif item['status'] == 'Pendente' %}status-pending{% endif %}">
+                        <tr>
                             <td>{{ item['nome'] }}</td>
                             <td>{{ item['data_pagamento'] }}</td>
-                            <td><span class="status-badge {{ item['status']|lower }}">{{ item['status'] }}</span></td>
+                            <td><span class="status-badge 
+                                {% if item['status']|lower == 'pago' %}status-paid
+                                {% elif item['status']|lower == 'pendente' %}status-pending
+                                {% else %}status-late{% endif %}">
+                                {{ item['status'] }}
+                            </span> </td>
                             <td>{{ item['observacao'] }}</td>
                             <td class="valor">R$ {{ item['valor'] }}</td>
                             <td>{{ item['meses_contratados'] }}</td>
@@ -93,14 +98,19 @@
                         <td>{{ conta.descricao }}</td>
                         <td class="valor">R$ {{ conta.valor }}</td>
                         <td>{{ conta.data_vencimento }}</td>
-                        <td><span class="status-badge {{ conta.status|lower }}">{{ conta.status }}</span></td>
+                        <td><span class="status-badge 
+                            {% if conta['status']|lower == 'pago' %}status-paid
+                            {% elif conta['status']|lower == 'pendente' %}status-pending
+                            {% else %}status-late{% endif %}">
+                            {{ conta['status'] }}
+                        </span> </td>
                         <td>
                             {% if conta.status == 'pendente' %}
-                            <form method="POST" action="{{ url_for('painel_routes.pagar_conta', conta_id=conta.id) }}">
+                            <form method="POST" action="{{ url_for('painel_routes.pagar_conta', conta_id=conta.id, usuario_id=usuario_id) }}">
                                 <button type="submit" class="btn btn-finance">Pagar</button>
                             </form>
                             {% elif conta.status == 'pago' %}
-                            <form method="POST" action="{{ url_for('painel_routes.excluir_conta', conta_id=conta.id) }}">
+                            <form method="POST" action="{{ url_for('painel_routes.excluir_conta', conta_id=conta.id, usuario_id=usuario_id) }}">
                                 <button type="submit" class="btn btn-danger">Excluir</button>
                             </form>
                             {% endif %}
@@ -117,32 +127,104 @@
     </div>
 
     <div class="panel-section">
-        <h2>Entradas</h2>
+        <h2>Pagamentos do Dia</h2>
         <div class="table-container">
             <table class="data-table">
                 <thead>
                     <tr>
+
                         <th>Nome</th>
                         <th>Valor</th>
-                        <th>Data de pagamento</th>
+                        <th>Status</th>    
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for entrada in entrada_valores %}
-                    <tr>
-                        <td>{{ entrada.nome }}</td>
-                        <td class="valor">R$ {{ entrada.valor_pago }}</td>
-                        <td>{{ entrada.data_pagamento }}</td>
-                    </tr>
+                    {% if pagamentos_dia %}
+                        {% for pagamento in pagamentos_dia %}
+                        <tr>
+
+                            
+                           
+                            <td>{{ pagamento.nome }}</td>
+                            <td class="valor">R$ {{ pagamento.valor }}</td>
+
+                            <td><span class="status-badge 
+                                        {% if pagamento['status']|lower == 'pago' %}status-paid
+                                        {% elif pagamento['status']|lower == 'pendente' %}status-pending
+                                        {% else %}status-late{% endif %}">
+                                        {{ pagamento['status'] }}
+                                    </span></td>
+                            <td class="actions-column">
+                                <div class="btn-group">
+                                    {% if pagamento.status == 'pago' %}
+                                    <form action="{{ url_for('financeiro_routes.excluir_financeiro', id=pagamento.id, usuario_id=pagamento.usuario_id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este pagamento?')">
+                                        <button class="btn btn-danger" type="submit">Excluir</button>
+                                    </form>
+                                    {% else %}
+                                    <form action="{{ url_for('painel_routes.pagar_financeiro', id=pagamento.id, usuario_id=pagamento.usuario_id) }}" method="POST">
+                                        <button class="btn btn-finance" type="submit">Pagar</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
                     {% else %}
-                    <tr>
-                        <td colspan="3" class="no-data">Nenhuma entrada encontrada para este mês.</td>
-                    </tr>
-                    {% endfor %}
+                        <tr>
+                            <td colspan="3" class="no-data">Nenhum pagamento encontrado para hoje.</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
     </div>
 
+    <div class="toggle-section">
+        <button id="toggle-entradas" class="btn btn-primary">Mostrar Entradas</button>
+    </div>
+
+    <div id="entradas" style="display: none;">
+        <div class="panel-section">
+            <h2>Entradas</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Valor</th>
+                            <th>Data de pagamento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entrada in entrada_valores %}
+                        <tr>
+                            <td>{{ entrada.nome }}</td>
+                            <td class="valor">R$ {{ entrada.valor_pago }}</td>
+                            <td>{{ entrada.data_pagamento }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="no-data">Nenhuma entrada encontrada para este mês.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('toggle-entradas').addEventListener('click', function() {
+            var entradas = document.getElementById('entradas');
+            if (entradas.style.display === 'none') {
+                entradas.style.display = 'block';
+                this.textContent = 'Esconder Entradas';
+            } else {
+                entradas.style.display = 'none';
+                this.textContent = 'Mostrar Entradas';
+            }
+        });
+    </script>
 </div>
 {% endblock %}

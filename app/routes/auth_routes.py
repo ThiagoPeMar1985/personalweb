@@ -1,6 +1,7 @@
 # app/routes/auth_routes.py
 
 from flask import Blueprint, render_template, request, flash, session, redirect, url_for
+from functools import wraps
 from app.database import get_db_connection
 
 auth_routes = Blueprint('auth_routes', __name__)
@@ -29,7 +30,7 @@ def login():
         session['user_tipo'] = user['tipo']
 
         if user['tipo'] == 'adm':
-            return redirect(url_for('menu_routes.menu'))  # Alterado para 'menu_routes.menu'
+            return redirect(url_for('menu_routes.menu'))  
         elif user['tipo'] in ['aluno', 'visit']:
             return redirect(url_for('aluno_routes.alunos'))
         else:
@@ -41,6 +42,16 @@ def login():
 
 @auth_routes.route('/logout')
 def logout():
-    session.clear()  # Limpa os dados da sessão
+    session.clear()  
     flash('Você foi desconectado com sucesso!', 'success')
-    return redirect(url_for('auth_routes.index'))  # Redireciona para a página de login
+    return redirect(url_for('auth_routes.index')) 
+
+def verificar_acesso(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        usuario = session.get('usuario')
+        if usuario and usuario['tipo'] in ['aluno', 'visitante']:
+            flash('Acesso negado. Você não tem permissão para acessar esta página.', 'error')
+            return redirect(url_for('aluno_routes.alunos'))  
+        return func(*args, **kwargs)
+    return wrapper

@@ -85,6 +85,7 @@ def agenda():
     return render_template('agenda.html', agenda=agenda, dias=dias, dias_semana_traduzidos=dias_semana_traduzidos,resultados=resultados)
 
 
+
 @agenda_routes.route('/agenda/criar', methods=['GET', 'POST'])
 def criar_agenda():
     connection = get_db_connection()
@@ -105,70 +106,43 @@ def criar_agenda():
         usuario_id = request.form['usuario_id']
         data = request.form['data']
         horario = request.form['horario']
-        duracao =(request.form['duracao'])
+        duracao = request.form['duracao']
         tipo = request.form['tipo']
         descricao = request.form['descricao']
         repetir = 'repetir' in request.form  
 
-       
         if not data or not re.match(r'\d{4}-\d{2}-\d{2}', data):
             return render_template('criar_agenda.html', error_message='Data inválida. Use o formato YYYY-MM-DD.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
 
-   
         data_datetime = datetime.strptime(data, "%Y-%m-%d").date()
         if data_datetime < datetime.today().date():
             return render_template('criar_agenda.html', error_message='Não é possível agendar para uma data anterior ao dia atual.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
 
-      
-        query = """
-            SELECT COUNT(*) FROM agenda
-            WHERE data = %s AND horario = %s
-        """
-        cursor.execute(query, (data, horario))
-        agendamentos_existentes = cursor.fetchone()[0]
-
-        if agendamentos_existentes > 0:
-            return render_template('criar_agenda.html', error_message='Já existe um agendamento para esta data e horário.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
+        agendamento_id_atual = None
+        if verificar_sobreposicao_agendamento(data, horario, duracao, agendamento_id_atual):
+            return render_template('criar_agenda.html', error_message='Já existe um agendamento para este dia e horário.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
 
         try:
             duracao_horas, duracao_minutos = map(int, duracao.split(':'))
         except ValueError:
             return render_template('criar_agenda.html', error_message='Duração inválida. Use o formato HH:MM.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
-       
+
         duracao = timedelta(hours=duracao_horas, minutes=duracao_minutos)
 
-        
         try:
             horario_datetime = datetime.strptime(horario, '%H:%M')
         except ValueError:
             return render_template('criar_agenda.html', error_message='Horário inválido. Use o formato HH:MM.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
 
-       
         horario_final = horario_datetime + duracao
-        
-        duracao_total_minutos = duracao_horas * 60 + duracao_minutos
-        duracao_total_semanas = duracao_total_minutos / (7 * 24 * 60)  
-        data_fim_repeticao = data_datetime + timedelta(weeks=duracao_total_semanas) 
-
-       
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        query_check = """
-            SELECT COUNT(*) FROM agenda 
-            WHERE data = %s AND horario = %s
-        """
-        cursor.execute(query_check, (data, horario))
-        count = cursor.fetchone()[0]
-        
-        if count > 0:
-            return render_template('criar_agenda.html', error_message='Já existe um agendamento para este dia e horário.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
-
         criar_agenda(usuario_id, data_datetime.strftime("%Y-%m-%d"), duracao, tipo, descricao, horario)
 
         if repetir:
+            data_fim_repeticao = request.form['data_fim_repeticao']  # Coloque a data de término da repetição aqui
+            data_fim_repeticao = datetime.strptime(data_fim_repeticao, "%Y-%m-%d").date()
+
             while data_datetime <= data_fim_repeticao:
-                data_nova = data_datetime + timedelta(weeks=1)  
+                data_nova = data_datetime + timedelta(weeks=1)  # Repete a cada semana
                 if data_nova <= data_fim_repeticao:
                     criar_agenda(usuario_id, data_nova.strftime("%Y-%m-%d"), duracao, tipo, descricao, horario)
                 data_datetime = data_nova  
@@ -184,11 +158,8 @@ def criar_agenda():
     return render_template('criar_agenda.html', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
 
 
-
 def completar_dia_semana(data):
-  
     data_obj = datetime.strptime(data, '%Y-%m-%d') 
-
     return data_obj.strftime('%A')  
 
 
@@ -196,11 +167,14 @@ def criar_agenda(usuario_id, data, duracao, tipo, descricao, horario):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
- 
-        dia_semana = completar_dia_semana(data)
 
-       
+        if isinstance(duracao, timedelta):
+            duracao_horas = duracao.seconds // 3600
+            duracao_minutos = (duracao.seconds % 3600) // 60
+            duracao = f"{duracao_horas:02}:{duracao_minutos:02}"
+
+        dia_semana = completar_dia_semana(data)
+  
         query_check = """
             SELECT COUNT(*) FROM agenda 
             WHERE data = %s AND horario = %s
@@ -208,16 +182,15 @@ def criar_agenda(usuario_id, data, duracao, tipo, descricao, horario):
         cursor.execute(query_check, (data, horario))
         count = cursor.fetchone()[0]
         
-       
         if count > 0:
-            return render_template('error.html', error_message='Já existe um agendamento para este dia e horário.')
+            return render_template('criar_agenda.html', error_message='Já existe um agendamento para este dia e horário.')
         
-      
         query = """
             INSERT INTO agenda (usuario_id, data, duracao, tipo, descricao, horario, dia_semana)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(query, (usuario_id, data, duracao, tipo, descricao, horario, dia_semana))
+
         conn.commit()
         
     except Exception as e:
@@ -339,6 +312,16 @@ def excluir_agendamento(id):
 def editar_agendamento(id):
     connection = get_db_connection()
     cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM agenda WHERE id = %s", (id,))
+    agendamento = cursor.fetchone()
+
+    horarios1 = []
+    for hour in range(5, 24): 
+        for minute in range(0, 60, 10): 
+            horario = f"{hour:02}:{minute:02}"
+            horarios1.append(horario)   
+
     if request.method == 'POST':
         data = request.form['data']
         horario = request.form['horario']
@@ -346,11 +329,60 @@ def editar_agendamento(id):
         tipo = request.form['tipo']
         descricao = request.form['descricao']
 
-        
+        if verificar_sobreposicao_agendamento(data, horario, duracao, id):
+            return render_template('editar_agenda.html', error_message='Já existe um agendamento para este dia e horário.', horarios1=horarios1, agendamento=agendamento)
+
         cursor.execute("UPDATE agenda SET data = %s, horario = %s, duracao = %s, tipo = %s, descricao = %s WHERE id = %s", (data, horario, duracao, tipo, descricao, id))
         connection.commit()
         flash('Agendamento atualizado com sucesso!', 'success')
         return redirect(url_for('agenda_routes.agenda'))
-    cursor.execute("SELECT * FROM agenda WHERE id = %s", (id,))
-    agendamento = cursor.fetchone()
-    return render_template('editar_agenda.html', agendamento=agendamento)
+    
+    return render_template('editar_agenda.html', agendamento=agendamento, horarios1=horarios1)
+
+
+
+from datetime import datetime, timedelta
+
+def verificar_sobreposicao_agendamento(data, horario, duracao, agendamento_id_atual=None):
+    print("entrou aqui ", data, horario, duracao, agendamento_id_atual)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    duracao_horas, duracao_minutos = map(int, duracao.split(':'))
+    duracao_timedelta = timedelta(hours=duracao_horas, minutes=duracao_minutos)
+
+    horario_datetime = datetime.strptime(horario, '%H:%M')
+    horario_final = horario_datetime + duracao_timedelta
+
+    if agendamento_id_atual is None:
+        query = """
+            SELECT id, horario, duracao FROM agenda
+            WHERE data = %s
+        """
+        cursor.execute(query, (data,))
+    else:
+        query = """
+            SELECT id, horario, duracao FROM agenda
+            WHERE data = %s AND id != %s
+        """
+        cursor.execute(query, (data, agendamento_id_atual))
+    
+    agendamentos_existentes = cursor.fetchall()
+
+    for agendamento in agendamentos_existentes:
+        agendamento_horario = agendamento[1]
+        agendamento_duracao = agendamento[2]
+
+        agendamento_horario_datetime = datetime.strptime(agendamento_horario, '%H:%M')
+        agendamento_duracao_horas, agendamento_duracao_minutos = map(int, agendamento_duracao.split(':'))
+        agendamento_duracao_timedelta = timedelta(hours=agendamento_duracao_horas, minutes=agendamento_duracao_minutos)
+        agendamento_horario_final = agendamento_horario_datetime + agendamento_duracao_timedelta
+
+        if (horario_datetime < agendamento_horario_final and horario_final > agendamento_horario_datetime):
+            cursor.close()
+            conn.close()
+            return True  
+
+    cursor.close()
+    conn.close()
+    return False

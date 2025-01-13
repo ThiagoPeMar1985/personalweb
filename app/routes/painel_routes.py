@@ -2,11 +2,13 @@ from flask import Blueprint, render_template, request, flash, session, redirect,
 from app.database import get_db_connection
 from datetime import datetime
 import mysql.connector  
+from .auth_routes import verificar_acesso
 
 
 painel_routes = Blueprint('painel_routes', __name__)
 
 @painel_routes.route('/painel_financeiro', methods=['GET'])
+@verificar_acesso
 def painel_controle():
     usuario_id = request.args.get('usuario_id')
     ano = datetime.now().year
@@ -18,20 +20,18 @@ def painel_controle():
     nome_mes = f"{meses[mes - 1].capitalize()} de {ano}" 
     contas = mostrar_contas(mes, ano)
     entrada_valores = mostrar_valores(mes, ano)
+    pagamentos_dia = pagamentos_do_dia()
 
     for entrada in entrada_valores:
         if 'data_pagamento' in entrada and entrada['data_pagamento']:
           entrada['data_pagamento'] = entrada['data_pagamento'].strftime('%d-%m-%Y')
-
-           
+    
     try:
         cnx = get_db_connection()
         cursor = cnx.cursor(dictionary=True)
 
         cursor.execute("SELECT id, nome FROM usuarios")
         usuarios = cursor.fetchall()
-        
-
         
         if usuario_id:
             cursor.execute("""
@@ -47,14 +47,14 @@ def painel_controle():
     finally:
         cursor.close()
         cnx.close()
-
     return render_template('painelfinanceiro.html', 
         usuarios=usuarios, 
         usuario_id=usuario_id, 
         financeiro=financeiro, 
         nome_mes=nome_mes, 
         contas=contas, 
-        entrada_valores=entrada_valores
+        entrada_valores=entrada_valores,
+        pagamentos_dia=pagamentos_dia
     )
 
 @painel_routes.route('/contas', methods=['GET'])
@@ -63,11 +63,9 @@ def mostrar_contas():
     ano = request.args.get('ano', datetime.now().year)
     
     try:
-        
         cnx = get_db_connection()
         cursor = cnx.cursor(dictionary=True)
 
-        
         cursor.execute("""
             SELECT  id, descricao,valor, data_vencimento, status
             FROM contas
@@ -75,9 +73,7 @@ def mostrar_contas():
             AND YEAR(data_vencimento) = %s
         """, (mes, ano))
         
-        
         contas = cursor.fetchall()
-        
         
         total_contas = sum(c['valor'] for c in contas)
         
@@ -89,13 +85,10 @@ def mostrar_contas():
     finally:
         cursor.close()
         cnx.close()
-    
-    
+
     return render_template('painelfinanceiro.html', contas=contas, total_contas=total_contas, mes=mes, ano=ano)
 
 def mostrar_contas(mes, ano):
-    
-
     try:
         cnx = get_db_connection()
         cursor = cnx.cursor(dictionary=True)
@@ -180,31 +173,25 @@ def lancar_contas():
     return render_template('lancar_conta.html')
 
 
-def lancar_pagamentos_em_entradas():
-    
+def lancar_pagamentos_em_entradas():  
     try:
         cnx = get_db_connection()
-        cursor = cnx.cursor(dictionary=True)
-        
+        cursor = cnx.cursor(dictionary=True)  
         
         mes_atual = datetime.now().month
         ano_atual = datetime.now().year
         
-
         cursor.execute("""
             SELECT id, usuario_id, nome, valor, data_pagamento 
             FROM financeiro 
             WHERE MONTH(data_pagamento) = %s 
             AND YEAR(data_pagamento) = %s 
             AND status = 'pago'
-        """, (mes_atual, ano_atual))
-        
+        """, (mes_atual, ano_atual))     
         
         pagamentos = cursor.fetchall()
         
-
         for pagamento in pagamentos:
-
             cursor.execute("SELECT id FROM usuarios WHERE id = %s", (pagamento['usuario_id'],))
             usuario = cursor.fetchone()
             
@@ -223,8 +210,7 @@ def lancar_pagamentos_em_entradas():
                 print(f"Usuário com ID {pagamento['usuario_id']} não encontrado na tabela 'usuarios'")
 
         cnx.commit()
-        
-        
+             
     except mysql.connector.Error as e:
         
         if cnx:
@@ -239,17 +225,13 @@ def lancar_pagamentos_em_entradas():
 @painel_routes.route('/financeiro/pagar/<int:id>/<int:usuario_id>', methods=['POST'])
 def pagar_financeiro(id, usuario_id):
 
-    try:
-        
+    try: 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-
-        
+ 
         cursor.execute('UPDATE financeiro SET status = %s WHERE id = %s', ('pago', id))
         conn.commit()
-
         lancar_pagamentos_em_entradas()
-
         flash('Pagamento atualizado com sucesso!', 'success')
 
     except mysql.connector.Error as e:
@@ -258,7 +240,8 @@ def pagar_financeiro(id, usuario_id):
         cursor.close()
         conn.close()
 
-    return redirect(url_for('financeiro_routes.financeiro', usuario_id=usuario_id))
+    return redirect(url_for('painel_routes.painel_controle'))
+
 
 @painel_routes.route('/lancar_pagamentos', methods=['GET'])
 def lancar_pagamentos():
@@ -267,8 +250,6 @@ def lancar_pagamentos():
 
 
 
-
-# Método para pagar a conta
 @painel_routes.route('/pagar_conta/<int:conta_id>', methods=['POST'])
 def pagar_conta(conta_id):
 
@@ -278,11 +259,9 @@ def pagar_conta(conta_id):
 
         query = "UPDATE contas SET status = 'pago' WHERE id= %s"
         cursor.execute(query,(conta_id,)) 
-        print('chegamos aqui')   
 
         conn.commit()
         flash("conta paga com sucesso", "success")
-        print("conta paga")
     except mysql.connector.Error as err:
         flash(f"error ao pagar a conta: {err}", "error")
     finally:
@@ -298,7 +277,6 @@ def excluir_conta(conta_id):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Deletar conta pelo ID
         query = "DELETE FROM contas WHERE id = %s"
         cursor.execute(query, (conta_id,))
         
@@ -310,5 +288,26 @@ def excluir_conta(conta_id):
         cursor.close()
         conn.close()
     
-    # Redirecionar de volta para o painel
     return redirect(url_for('painel_routes.painel_controle'))
+
+
+
+
+def pagamentos_do_dia():
+    pagamentos_dia = []
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        data_atual = datetime.now().date()
+        cursor.execute('SELECT * FROM financeiro WHERE data_pagamento = %s', (data_atual,))
+        pagamentos_dia = cursor.fetchall()
+
+    except mysql.connector.Error as e:
+        flash(f'Erro ao buscar pagamentos: {e}', 'error')
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return pagamentos_dia 
+

@@ -67,12 +67,12 @@
             </div>
             
             <button type="submit" class="btn btn-primary">Adicionar Exercício</button>
+            <a href="{{ url_for('aluno_routes.gerenciar_treinos', user_id=usuario.id) }}" class="btn btn-danger">Excluir Exercícios</a>
         </form>
     </div>
 
     <div class="back-button">
         <div class="button-group">
-            <a href="{{ url_for('aluno_routes.gerenciar_treinos', user_id=usuario.id) }}" class="btn btn-danger">Excluir Exercícios</a>
             <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar ao Menu</a>
         </div>
     </div>

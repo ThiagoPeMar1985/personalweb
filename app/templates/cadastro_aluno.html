@@ -68,10 +68,10 @@
             <label for="braco_esquerdo">Braço Esquerdo (cm):</label>
             <input type="number" step="0.01" name="braco_esquerdo" id="braco_esquerdo" required placeholder="ex: 1.20"><br><br>
 
-            <label for="braco_circulo_direito">Circunferência Braço Direito (cm):</label>
+            <label for="braco_circulo_direito">Braço Direito Contraido (cm):</label>
             <input type="number" step="0.01" name="braco_circulo_direito" id="braco_circulo_direito" required placeholder="ex: 1.20"><br><br>
 
-            <label for="braco_circulo_esquerdo">Circunferência Braço Esquerdo (cm):</label>
+            <label for="braco_circulo_esquerdo">Braço Esquerdo Contraido (cm):</label>
             <input type="number" step="0.01" name="braco_circulo_esquerdo" id="braco_circulo_esquerdo" required placeholder="ex: 1.20"><br><br>
 
             <label for="antebraco_direito">Antebraço Direito (cm):</label>
@@ -96,20 +96,62 @@
         <fieldset>
             <legend>Outras Informações</legend>
             <label for="problemas_saude">Problemas de Saúde:</label>
-            <input type="text" id="problemas_saude" name="problemas_saude" required placeholder="Descreva os problemas de saúde (se houver)"><br><br>    
+            <input type="text" id="problemas_saude" name="problemas_saude" placeholder="Descreva os problemas de saúde (se houver)"><br><br>    
 
             <label for="desejos">O que deseja alcançar:</label>
-            <textarea id="desejos" name="desejos" rows="4" cols="50" placeholder="Descreva seus objetivos de treino ou saúde"></textarea><br><br>
+            <textarea id="desejos" name="desejos" rows="4" cols="50"  required placeholder="Descreva seus objetivos de treino ou saúde"></textarea><br><br>
 
             <label for="data">Data:</label>
             <input type="date" id="data" name="data" required><br><br>
         </fieldset>
         <div class='centro'>
-        <button class="btn-green" type="submit" value="Cadastrar">Cadastrar</button> 
+        <button class='btn btn-primary' type="submit" value="Cadastrar">Cadastrar</button> 
         </div>
     </form>
 
     <form action="{{ url_for('aluno_routes.mostrar_aluno', usuario_id=usuario_id) }}" method="GET">
-        <button type="submit" class='btn-red'>Voltar</button>
+        <button type="submit" class='btn btn-danger'>Voltar</button>
     </form>
+
+    <script>
+        function calcularIMC() {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseFloat(document.getElementById('altura').value);
+            
+
+            if (isNaN(peso) || isNaN(altura) || altura <= 0) {
+                alert('Por favor, insira valores válidos para peso e altura.');
+                return;
+            }
+
+            const imc = peso / (altura * altura);
+            document.getElementById('imc').value = imc.toFixed(2);
+        }
+
+        function preencherDataAtual() {
+            const hoje = new Date();
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+            const ano = hoje.getFullYear();
+            const dataFormatada = `${ano}-${mes}-${dia}`;
+            document.getElementById('data').value = dataFormatada;
+        }
+
+        // Função para verificar se os valores são válidos
+        function verificarValores() {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseFloat(document.getElementById('altura').value);
+
+            if (!isNaN(peso) && !isNaN(altura) && altura > 0) {
+                calcularIMC(); // Chama a função de cálculo se os valores forem válidos
+            }
+        }
+
+        // Adiciona ouvintes de eventos aos campos de peso e altura
+        document.getElementById('peso').addEventListener('input', verificarValores);
+        document.getElementById('altura').addEventListener('input', verificarValores);
+
+        // Chama a função ao carregar a página
+        window.onload = preencherDataAtual;
+    </script>
 {% endblock %}

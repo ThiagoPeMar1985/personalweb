@@ -2,11 +2,13 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.database import get_db_connection
 from datetime import datetime
 import calendar
+from .auth_routes import verificar_acesso
 
 
 financeiro_routes = Blueprint('financeiro_routes', __name__)
 
 @financeiro_routes.route('/financeiro/<int:usuario_id>', methods=['GET'])
+@verificar_acesso
 def financeiro(usuario_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)  
@@ -24,13 +26,9 @@ def financeiro(usuario_id):
         if 'data_pagamento' in entrada and entrada['data_pagamento']:
             entrada['data_pagamento'] = entrada['data_pagamento'].strftime('%d-%m-%Y')
 
-
-
     for entrada in entrada_valores:
         if 'data_pagamento' in entrada and entrada['data_pagamento']:
             entrada['data_pagamento'] = entrada['data_pagamento'].strftime('%d-%m-%Y')
-
-
 
     cursor.close()
     conn.close()
@@ -102,6 +100,7 @@ def gerar_pagamentos(data_inicio, valor, meses_contratados):
         
         status = request.form['status']
 
+        print('Data de Pagamento:', data_pagamento)  
         if status != "Pago":  
             if data_pagamento < datetime.now():
                 status = "Atrasado"

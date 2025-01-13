@@ -1,10 +1,12 @@
 
 from flask import Blueprint, render_template, request, flash, session, redirect, url_for
 from app.database import get_db_connection
+from .auth_routes import verificar_acesso
 
 admin_routes = Blueprint('admin_routes', __name__)
 
 @admin_routes.route('/criar_usuario', methods=['GET', 'POST'])
+@verificar_acesso
 def criar_usuario():
     if request.method == 'POST':
         nome = request.form['nome']
