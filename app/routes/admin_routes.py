@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, request, flash, session, redirect,
 from app.database import get_db_connection
 from .auth_routes import verificar_acesso
 
+
 admin_routes = Blueprint('admin_routes', __name__)
 
 @admin_routes.route('/criar_usuario', methods=['GET', 'POST'])
@@ -90,9 +91,10 @@ def editar_usuario(id):
 
 @admin_routes.route('/usuarios/excluir/<int:id>', methods=['POST'])
 def excluir_usuario(id):
+    print("entrou aqui", id)
     try:
         cnx = get_db_connection()
-        cursor = cnx.cursor()
+        cursor = cnx.cursor(dictionary=True)
         query = "DELETE FROM usuarios WHERE id = %s"
         cursor.execute(query, (id,))
         cnx.commit()

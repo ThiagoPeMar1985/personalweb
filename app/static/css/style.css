@@ -108,7 +108,7 @@ input, select, textarea {
     background-color: #f5f5f5;
 }
 
-/* Paleta de Botões */
+
 .btn {
     display: inline-flex;
     justify-content: center;
@@ -174,17 +174,31 @@ input, select, textarea {
 
 
 .btn-edit {
-    background-color: #7f8c8d;
+    background-color: #606363;
     color: white;
 }
 
 .btn-edit:hover {
-    background-color: #2e3535;
+    background-color: #232424;
 }
 
 
 .btn-danger {
-    background-color: #5f0c03;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0 24px;
+    min-width: 120px;
+    min-height: 44px;
+    line-height: 1;
+    font-size: 1em;
+    background-color: #5f0c03; 
     color: white;
 }
 
@@ -224,7 +238,6 @@ input, select, textarea {
     padding: 0 24px;
 }
 
-/* Ajuste para mobile */
 @media (max-width: 768px) {
     .treinos-table button.btn,
     .back-button .btn {
@@ -612,10 +625,25 @@ input, select, textarea {
 
 .menu-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 30px;
+}
+
+.menu-actions .btn {
+    flex: 1;
+    height: 50px;
+    box-sizing: border-box;
+    margin: 5px;
+}
+
+@media (max-width: 768px) {
+    .menu-actions .btn {
+        width: auto;
+        flex: none;
+        min-width: 100%;
+    }
 }
 
 .users-section {
@@ -1646,7 +1674,7 @@ footer p {
     font-size: 16px;
 }
 
-/* Ajustes para garantir que fique visível em telas menores (mobile) */
+
 @media (max-width: 600px) {
     .alert.alert-danger {
         font-size: 14px;
@@ -1654,12 +1682,37 @@ footer p {
         margin: 10px 0;
     }
     .agenda-header h2 {
-        text-align: center; /* Centraliza o texto */
-        margin: 0; /* Remove margens padrão */
-        padding: 10px 0; /* Adiciona um pouco de espaço acima e abaixo */
+        text-align: center; 
+        margin: 0; 
+        padding: 10px 0; 
     }
 }   
     
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #ffffff; 
+    min-height: 100px;
+}
+
+.header-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.header-logo img {
+    max-width: 100%;
+    height: auto;
+    width: auto;
+    height: 100px;
+    object-fit: cover;
+    
+}
+
 .header-date {
     background-color: #333;
     color: white;
@@ -1667,6 +1720,12 @@ footer p {
     text-align: center;
     font-size: 1.2em;
     border-radius: 5px;
+}
+
+.header-date-agenda {
+    text-align: center;
+    font-size: 1.2em;
+    color: var(--cor-primaria);
 }
 
 .painel-container {
@@ -1722,4 +1781,29 @@ footer p {
     .page-title {
         font-size: 1.2em;
     }
+}
+
+.button-container {
+    display: flex;
+    gap: 10px; 
+    align-items: center; 
+}
+
+.btn-exit {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0 24px;
+    min-width: 120px;
+    min-height: 44px;
+    line-height: 1;
+    font-size: 1em;
+    background-color: #5f0c03;
+    color: white;
 }

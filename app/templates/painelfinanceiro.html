@@ -6,6 +6,37 @@
 <div class="painel-container">
     <h1 class="page-title">Painel Financeiro - {{ nome_mes }}</h1>
 
+
+    <div class="summary-cards">
+        <div class="summary-card">
+            <h2 >Total Recebido</h2>
+            <p class="amount">R$ {{ entrada_valores|sum(attribute='valor_pago')|round(2) }}</p>
+        </div>
+        <div class="summary-card">
+            <h2>Contas Pagas</h2>
+            <p class="amount">
+                R$ <span id="total-pagas">0.00</span>
+            </p>
+        </div>
+        <div class="summary-card">
+            <h2>Saldo</h2>
+            <p class="amount">
+                R$ {{ (entrada_valores|sum(attribute='valor_pago') - contas|sum(attribute='valor'))|round(2) }}
+            </p>
+        </div>
+
+        <div class="summary-card">
+            <h2>Total Contas</h2>
+            <p class="amount">R$ {{ contas|sum(attribute='valor')|round(2) }}</p>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar</a>
+        <a href="{{ url_for('painel_routes.lancar_contas') }}" class="btn btn-finance">Lançar Conta</a>
+    </div>
+
+
     <div class="filter-section">
         <form method="GET" action="{{ url_for('painel_routes.painel_controle') }}" class="user-filter">
             <label for="usuario_id">Selecione um Usuário:</label>
@@ -17,29 +48,6 @@
             </select>
         </form>
     </div>
-
-    <div class="summary-cards">
-        <div class="summary-card">
-            <h2 >Total Recebido</h2>
-            <p class="amount">R$ {{ entrada_valores|sum(attribute='valor_pago')|round(2) }}</p>
-        </div>
-        <div class="summary-card">
-            <h2>Total Despesas</h2>
-            <p class="amount">R$ {{ contas|sum(attribute='valor')|round(2) }}</p>
-        </div>
-        <div class="summary-card">
-            <h2>Saldo</h2>
-            <p class="amount">
-                R$ {{ (entrada_valores|sum(attribute='valor_pago') - contas|sum(attribute='valor'))|round(2) }}
-            </p>
-        </div>
-    </div>
-
-    <div class="action-buttons">
-        <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar</a>
-        <a href="{{ url_for('painel_routes.lancar_contas') }}" class="btn btn-finance">Lançar Conta</a>
-    </div>
-
     {% if financeiro %}
     <div class="panel-section">
         <h2>Dados Financeiros</h2>
@@ -57,15 +65,10 @@
                 </thead>
                 <tbody>
                     {% for item in financeiro %}
-                        <tr>
+                        <tr class="{% if item['status'] == 'Pago' %}status-paid{% elif item['status'] == 'Pendente' %}status-pending{% endif %}">
                             <td>{{ item['nome'] }}</td>
                             <td>{{ item['data_pagamento'] }}</td>
-                            <td><span class="status-badge 
-                                {% if item['status']|lower == 'pago' %}status-paid
-                                {% elif item['status']|lower == 'pendente' %}status-pending
-                                {% else %}status-late{% endif %}">
-                                {{ item['status'] }}
-                            </span> </td>
+                            <td><span class="status-badge {{ item['status']|lower }}">{{ item['status'] }}</span></td>
                             <td>{{ item['observacao'] }}</td>
                             <td class="valor">R$ {{ item['valor'] }}</td>
                             <td>{{ item['meses_contratados'] }}</td>
@@ -78,6 +81,7 @@
     {% else %}
         <p class="no-data">Não há dados financeiros para este usuário neste mês.</p>
     {% endif %}
+
 
     <div class="panel-section">
         <h2>Contas a Pagar</h2>
@@ -162,7 +166,7 @@
                                         <button class="btn btn-danger" type="submit">Excluir</button>
                                     </form>
                                     {% else %}
-                                    <form action="{{ url_for('painel_routes.pagar_financeiro', id=pagamento.id, usuario_id=pagamento.usuario_id) }}" method="POST">
+                                    <form action="{{ url_for('financeiro_routes.pagar_financeiro', id=pagamento.id, usuario_id=pagamento.usuario_id) }}" method="POST">
                                         <button class="btn btn-finance" type="submit">Pagar</button>
                                     </form>
                                     {% endif %}
@@ -214,6 +218,37 @@
         </div>
     </div>
 
+    <div class="panel-section">
+        <h2>Contas Pagas</h2>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Data de Vencimento</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for conta in contas if conta['status']|lower == 'pago' %}
+                    <tr>
+                        <td>{{ conta.descricao }}</td>
+                        <td class="valor">R$ {{ conta.valor }}</td>
+                        <td>{{ conta.data_vencimento }}</td>
+                        <td><span class="status-badge status-paid">{{ conta['status'] }}</span></td>
+                    </tr>
+                    {% endfor %}
+                    {% if contas|selectattr('status', 'equalto', 'pago')|list|length == 0 %}
+                    <tr>
+                        <td colspan="4" class="no-data">Nenhuma conta paga encontrada para este mês.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <script>
         document.getElementById('toggle-entradas').addEventListener('click', function() {
             var entradas = document.getElementById('entradas');
@@ -225,6 +260,27 @@
                 this.textContent = 'Mostrar Entradas';
             }
         });
+    var contas = {{ contas | tojson }};
+        
+    function calcularTotalContasPagas(contas) {
+        
+        var contasPagas = contas.filter(function(conta) {
+            return conta.status === 'pago';
+        });
+
+       
+        var totalPagas = contasPagas.reduce(function(total, conta) {
+            return total + parseFloat(conta.valor);
+        }, 0);
+
+      
+        document.getElementById('total-pagas').innerText = totalPagas.toFixed(2);
+    }
+
+    
+    window.onload = function() {
+        calcularTotalContasPagas(contas);
+    };
     </script>
 </div>
 {% endblock %}

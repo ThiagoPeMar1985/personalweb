@@ -6,8 +6,11 @@
     <title>{% block title %}Personal WEb{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <body>
-    <header >
-        <h1>{% block header %}Personal Web{% endblock %}</h1>
+    <header class="header">
+        <div class="header-logo">
+            <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Logo">
+        </div>
+        
     </header>
 
     <main class='container'>

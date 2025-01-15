@@ -3,6 +3,7 @@ from app.database import get_db_connection
 from datetime import datetime
 import calendar
 from .auth_routes import verificar_acesso
+from .painel_routes import lancar_pagamentos_em_entradas
 
 
 financeiro_routes = Blueprint('financeiro_routes', __name__)
@@ -135,7 +136,7 @@ def excluir_financeiro(usuario_id, id):
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute('SELECT nome FROM usuarios WHERE id = %s', (usuario_id,))
+        cursor.execute('SELECT * FROM usuarios WHERE id = %s', (usuario_id,))
         usuario = cursor.fetchone()
         
         if usuario is None:
@@ -187,6 +188,26 @@ def historico_pagamentos(usuario_id, ano=None):
             conn.close()
 
     return entrada_valores
+
+@financeiro_routes.route('/financeiro/pagar/<int:id>/<int:usuario_id>', methods=['POST'])
+def pagar_financeiro(id, usuario_id):
+
+    try: 
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+ 
+        cursor.execute('UPDATE financeiro SET status = %s WHERE id = %s', ('pago', id))
+        conn.commit()
+        lancar_pagamentos_em_entradas()
+        flash('Pagamento atualizado com sucesso!', 'success')
+
+    except mysql.connector.Error as e:
+        flash(f'Erro ao atualizar pagamento: {e}', 'error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('menu_routes.menu'))
     
 
 

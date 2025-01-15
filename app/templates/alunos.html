@@ -5,38 +5,43 @@
 
     <button class="btn btn-evaluation" onclick="toggleContainerAvaliacao()">Avaliações</button>
     <button class="btn btn-training" onclick="toggleContainerTreinos()">Treinos</button>
-    <button class="btn btn-primary" onclick="toggleContainerAgenda()">Agenda com personal</button>
+    <button class="btn btn-primary" onclick="toggleContainerAgenda()">Agenda</button>
 
     {% set dias_semana_traduzidos = {"Monday": "Segunda-feira", "Tuesday": "Terça-feira", "Wednesday": "Quarta-feira", "Thursday": "Quinta-feira", "Friday": "Sexta-feira", "Saturday": "Sábado-feira", "Sunday": "Domingo"} %}
 
     <div class="painel-container" id="agenda-container" style="display: none;">
-        {% for agendamento in agenda %}
-        <div class="agendamento-item">
-            <div class="details-grid">
-                <div class="detail-item">
-
-                    <div class="full-width-header">
-                        <strong>{{ dias_semana_traduzidos[agendamento.dia_semana] }}</strong>
+        {% if agenda|length > 0 %}
+            {% for agendamento in agenda %}
+            <div class="agendamento-item">
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="full-width-header">
+                            <strong>{{ dias_semana_traduzidos[agendamento.dia_semana] }}</strong>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-value"><strong>{{ agendamento.data.strftime('%d/%m/%Y') }}</strong></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Inicia :</span>
+                        <span class="detail-value">{{ agendamento.horario }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Finaliza :</span>
+                        <span class="detail-value">{{ agendamento.horario_final }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Tipo:</span>
+                        <span class="detail-value">{{ agendamento.tipo }}</span>
                     </div>
                 </div>
-                <div class="detail-item">
-                    <span class="detail-value"><strong>{{ agendamento.data.strftime('%d/%m/%Y') }}</strong></span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Inicia :</span>
-                    <span class="detail-value">{{ agendamento.horario }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Finaliza :</span>
-                    <span class="detail-value">{{ agendamento.horario_final }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Tipo:</span>
-                    <span class="detail-value">{{ agendamento.tipo }}</span>
-                </div>
             </div>
-        </div>
-    {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="no-data-message">
+                <p>Não há agendamento cadastrado no momento.</p>  
+            </div>
+        {% endif %}
     </div>
 
     <div class="avaliacoes-container" id="avaliacoes-container" style="display:none">
@@ -212,6 +217,12 @@
                 </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="no-data-message">
+            <p>Não há avaliações anteriores para este aluno.</p>  
+        </div>
+        {% endif %}
+    </div>
 
         <!-- Incluir Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -305,17 +316,9 @@
                 criarGrafico('peso');
             });
         </script>
-    {% else %}
-        <div class="no-data-message">
-            <p>Não há avaliações anteriores para este aluno.</p>
-            <p>Clique em "Cadastrar Avaliação" para adicionar a primeira avaliação.</p>
-        </div>
-        {% endif %}
-    </div>
 
     <div id="treinos-container" class="treinos-container" style="display: none;">
         <div class="treinos-header">
-            <h2>Treinos de {{ usuario.nome }}</h2>
             <div class="treinos-actions">
                 {% set treinos_unicos = treinos | groupby('nome_treino') %}
                 {% for grupo in treinos_unicos %}
@@ -325,29 +328,34 @@
         </div>
     
         <div class="treinos-content">
-            {% for grupo in treinos_unicos %}
-            <div id="treino{{ grupo.grouper }}" class="treino-panel" style="display: none;">
-                <div class="treino-header">
-                    <h4>Treino {{ grupo.grouper }}</h4>
-                </div>
-                <div class="treino-content">
-                    <div class="treino-exercises">
-                        {% for treino in grupo.list %}
-                            <div class="exercise-item">
-                                <div class="exercise-name">{{ treino.exercicio }}</div>
-                                <div class="exercise-details">
-                                    <span class="exercise-reps">{{ treino.repeticoes }} repetições</span>
-                                    <span class="exercise-weight">{{ treino.peso }}</span>
-                                </div>
+            {% if treinos_unicos|length > 0 %}
+                {% for grupo in treinos_unicos %}
+                    <div id="treino{{ grupo.grouper }}" class="treino-panel" style="display: none;">
+                        <div class="treino-header">
+                            <h4>Treino {{ grupo.grouper }}</h4>
+                        </div>
+                        <div class="treino-content">
+                            <div class="treino-exercises">
+                                {% for treino in grupo.list %}
+                                    <div class="exercise-item">
+                                        <div class="exercise-name">{{ treino.exercicio }}</div>
+                                        <div class="exercise-details">
+                                            <span class="exercise-reps">{{ treino.repeticoes }} repetições</span>
+                                            <span class="exercise-weight">{{ treino.peso }}</span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
-                        {% endfor %}
+                        </div>
                     </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-data-message">
+                    <p>Não há treino cadastrado no momento.</p>  
                 </div>
-            </div>
-            {% endfor %}
+            {% endif %}
         </div>
     </div>
-
 
     <a href="{{ url_for('auth_routes.logout') }}" class="btn btn-danger">Sair</a>
 

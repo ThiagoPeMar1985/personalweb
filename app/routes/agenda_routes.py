@@ -69,20 +69,21 @@ def buscar_agenda():
 def agenda():
     resultados = buscar_agenda()  
     agenda = obter_agenda(resultados)
-
+    dia_atual = dia_formatado(datetime.now())
+    dia_semana_atual = datetime.now().strftime('%A')
     dias = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]  
     dias_semana_traduzidos = {
-        "Monday": "Segunda", 
-        "Tuesday": "Terça", 
-        "Wednesday": "Quarta", 
-        "Thursday": "Quinta", 
-        "Friday": "Sexta", 
+        "Monday": "Segunda-feira", 
+        "Tuesday": "Terça-feira", 
+        "Wednesday": "Quarta-feira", 
+        "Thursday": "Quinta-feira", 
+        "Friday": "Sexta-feira", 
         "Saturday": "Sábado", 
         "Sunday": "Domingo"
     }
 
   
-    return render_template('agenda.html', agenda=agenda, dias=dias, dias_semana_traduzidos=dias_semana_traduzidos,resultados=resultados)
+    return render_template('agenda.html', agenda=agenda, dias=dias, dias_semana_traduzidos=dias_semana_traduzidos,resultados=resultados,dia_atual=dia_atual,dia_semana_atual=dia_semana_atual)
 
 
 
@@ -94,7 +95,7 @@ def criar_agenda():
     cursor.execute("SELECT id, nome FROM usuarios")
     usuarios = cursor.fetchall()
 
-    dias_da_semana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
+    dias_da_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
 
     horarios = []
     for hour in range(5, 24):
@@ -109,12 +110,10 @@ def criar_agenda():
         duracao = request.form['duracao']
         tipo = request.form['tipo']
         descricao = request.form['descricao']
-        repetir = 'repetir' in request.form  
-
-        if not data or not re.match(r'\d{4}-\d{2}-\d{2}', data):
-            return render_template('criar_agenda.html', error_message='Data inválida. Use o formato YYYY-MM-DD.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
-
+        duracao_repeticao = int(request.form.get('duracao_repeticao'))
         data_datetime = datetime.strptime(data, "%Y-%m-%d").date()
+       
+
         if data_datetime < datetime.today().date():
             return render_template('criar_agenda.html', error_message='Não é possível agendar para uma data anterior ao dia atual.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
 
@@ -135,20 +134,20 @@ def criar_agenda():
             return render_template('criar_agenda.html', error_message='Horário inválido. Use o formato HH:MM.', usuarios=usuarios, horarios=horarios, dias_da_semana=dias_da_semana)
 
         horario_final = horario_datetime + duracao
+
         criar_agenda(usuario_id, data_datetime.strftime("%Y-%m-%d"), duracao, tipo, descricao, horario)
 
-        if repetir:
-            data_fim_repeticao = request.form['data_fim_repeticao']  # Coloque a data de término da repetição aqui
-            data_fim_repeticao = datetime.strptime(data_fim_repeticao, "%Y-%m-%d").date()
+        data_fim_repeticao = data_datetime + timedelta(days=30 * duracao_repeticao)
 
+        if duracao_repeticao > 0:
             while data_datetime <= data_fim_repeticao:
-                data_nova = data_datetime + timedelta(weeks=1)  # Repete a cada semana
-                if data_nova <= data_fim_repeticao:
-                    criar_agenda(usuario_id, data_nova.strftime("%Y-%m-%d"), duracao, tipo, descricao, horario)
-                data_datetime = data_nova  
+                data_datetime += timedelta(weeks=1)  
+                if data_datetime <= data_fim_repeticao:
+                    criar_agenda(usuario_id, data_datetime.strftime("%Y-%m-%d"), duracao, tipo, descricao, horario)
 
         cursor.close()
         connection.close()
+        print(criar_agenda)
 
         return redirect(url_for('agenda_routes.agenda'))
 
@@ -386,3 +385,9 @@ def verificar_sobreposicao_agendamento(data, horario, duracao, agendamento_id_at
     cursor.close()
     conn.close()
     return False
+
+def dia_formatado(data):
+    dia = data.day
+    mes = data.month
+    ano = data.year
+    return f"{dia:02}/{mes:02}/{ano}"

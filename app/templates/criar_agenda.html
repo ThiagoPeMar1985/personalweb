@@ -7,7 +7,7 @@
     </div>
 
     <div class="agenda-form">
-        <!-- Exibe mensagem de erro, se houver -->
+       
         {% if error_message %}
             <div class="alert alert-danger">{{ error_message }}</div>
         {% endif %}
@@ -56,21 +56,23 @@
 
             <div class="form-group">
                 <label for="tipo">Tipo:</label>
-                <input type="text" id="tipo" name="tipo" required>
+                <select id="tipo" name="tipo">
+                    <option value="treino">Treino</option>
+                    <option value="avaliacao">Avaliação</option>
+                    <option value="outros">Outros</option>
+                </select>
             </div>
 
             <div class="form-group">
                 <label for="descricao">Descrição:</label>
-                <textarea id="descricao" name="descricao" required></textarea>
+                <textarea id="descricao" name="descricao"></textarea>
             </div>
 
-            <!-- Opção de repetição semanal -->
             <div class="form-group">
                 <label for="repetir">Repetir Semanalmente:</label>
                 <input type="checkbox" name="repetir" id="repetir">
             </div>
-
-            <!-- Duração da repetição em meses (se "Repetir Semanalmente" for marcado) -->
+            
             <div class="form-group" id="duracao_repeticao_container" style="display:none;">
                 <label for="duracao_repeticao">Por quantos meses?</label>
                 <input type="number" name="duracao_repeticao" id="duracao_repeticao" min="1" value="6">
@@ -79,16 +81,14 @@
             <button type="submit" class="btn btn-primary">Criar Agenda</button>
         </form>
     </div>
-
     <div class="back-button">
         <div class="button-group">
-            <a href="{{ url_for('agenda_routes.agenda') }}" class="btn btn-danger">Voltar à Agenda</a>
+            <a href="{{ url_for('agenda_routes.agenda') }}" class="btn btn-exit">Voltar à Agenda</a>
         </div>
     </div>
 </div>
 
 <script>
-    // Mostrar ou esconder o campo de duração da repetição baseado na seleção do checkbox
     document.getElementById('repetir').addEventListener('change', function() {
         var duracaoRepeticaoContainer = document.getElementById('duracao_repeticao_container');
         if (this.checked) {

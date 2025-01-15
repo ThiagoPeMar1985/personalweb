@@ -5,6 +5,8 @@ import mysql.connector
 from .auth_routes import verificar_acesso
 
 
+
+
 painel_routes = Blueprint('painel_routes', __name__)
 
 @painel_routes.route('/painel_financeiro', methods=['GET'])
@@ -21,6 +23,7 @@ def painel_controle():
     contas = mostrar_contas(mes, ano)
     entrada_valores = mostrar_valores(mes, ano)
     pagamentos_dia = pagamentos_do_dia()
+
 
     for entrada in entrada_valores:
         if 'data_pagamento' in entrada and entrada['data_pagamento']:
@@ -222,25 +225,6 @@ def lancar_pagamentos_em_entradas():
             cnx.close()
 
 
-@painel_routes.route('/financeiro/pagar/<int:id>/<int:usuario_id>', methods=['POST'])
-def pagar_financeiro(id, usuario_id):
-
-    try: 
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
- 
-        cursor.execute('UPDATE financeiro SET status = %s WHERE id = %s', ('pago', id))
-        conn.commit()
-        lancar_pagamentos_em_entradas()
-        flash('Pagamento atualizado com sucesso!', 'success')
-
-    except mysql.connector.Error as e:
-        flash(f'Erro ao atualizar pagamento: {e}', 'error')
-    finally:
-        cursor.close()
-        conn.close()
-
-    return redirect(url_for('painel_routes.painel_controle'))
 
 
 @painel_routes.route('/lancar_pagamentos', methods=['GET'])

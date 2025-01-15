@@ -47,7 +47,11 @@
 
                 <div class="form-group">
                     <label for="tipo">Tipo:</label>
-                    <input type="text" name="tipo" value="{{ agendamento['tipo'] }}" required>
+                    <select id="tipo" name="tipo">
+                        <option value="treino">Treino</option>
+                        <option value="avaliacao">Avaliação</option>
+                        <option value="outros">Outros</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -57,9 +61,8 @@
 
                 <button type="submit" class="btn btn-primary">Salvar</button>
             </form>
-            <a href="{{ url_for('agenda_routes.agenda') }}" class="btn btn-danger">Voltar</a>
+            <a href="{{ url_for('agenda_routes.agenda') }}" class="btn btn-exit">Voltar</a>
         </div>
   
 
 {% endblock %}
-

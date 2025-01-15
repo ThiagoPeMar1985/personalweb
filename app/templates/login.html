@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-    <!-- Exibir mensagens de erro -->
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -16,15 +12,12 @@
         {% endif %}
     {% endwith %}
 
-    <h1>Login</h1>
-    <form method="POST" action="{{ url_for('auth_routes.login') }}">
-        <label for="username">Username:</label>
-        <input type="text" name="username" id="username" required>
-        
-        <label for="password">Senha:</label>
-        <input type="password" name="password" id="password" required>
-        
-        <input type="submit" value="Entrar">
-    </form>
-</body>
-</html>
+    <div class="login-page">
+        <form method="POST" action="{{ url_for('auth_routes.login') }}">
+            <h2>Login</h2>
+            <input type="text" name="username" placeholder="Usuário" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+    </div>
+>{% endblock %}

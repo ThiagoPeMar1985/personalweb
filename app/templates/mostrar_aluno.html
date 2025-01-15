@@ -9,7 +9,7 @@
 
     <div class="button-group header-buttons">
         <a href="{{ url_for('aluno_routes.cadastro_aluno', usuario_id=usuario_id, nome=nome) }}" class="btn btn-evaluation">Cadastrar Avaliação</a>
-        <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar ao Menu</a>
+        <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-exit">Voltar ao Menu</a>
     </div>
 
     {% if avaliacoes|length > 0 %}
