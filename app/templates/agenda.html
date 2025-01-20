@@ -12,6 +12,9 @@
                 <a href="{{ url_for('agenda_routes.criar_agenda') }}" class="btn btn-primary">Agendar aluno</a>
                 <button id="btn-edicoes" class="btn btn-training">Editar Agenda</button>
             </div>
+            <div class="button-container">
+            <a href="{{ url_for('agenda_routes.filtro_agenda') }}" class="btn btn-finance">Filtrar Agendamentos</a>
+            </div>
         </form>
     </div>
     <h4 class="header-date-agenda">Hoje é {{ dias_semana_traduzidos[dia_semana_atual] }} {{ dia_atual }}</h4><br>

@@ -8,6 +8,7 @@
             <a href="{{ url_for('admin_routes.criar_usuario') }}" class="btn btn-primary">Criar Usuário</a>
             <a href="{{ url_for('painel_routes.painel_controle') }}" class="btn btn-finance">Painel financeiro</a>
             <a href="{{ url_for('agenda_routes.agenda') }}" class="btn btn-training">Agenda</a>
+            <a href="{{ url_for('menu_routes.contato',usuario_id=usuario_id) }}" class="btn btn-edit">Personal Web</a>
             <a href="{{ url_for('auth_routes.logout') }}" class="btn btn-exit">Sair</a>
         </div>
     </div>

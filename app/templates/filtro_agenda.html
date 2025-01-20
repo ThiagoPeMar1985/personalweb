@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="painel-container">
+    <h1 class="page-title">Filtrar Agendamentos</h1>
+
+    <form action="{{ url_for('agenda_routes.filtro_agenda') }}" method="POST">
+        <div class="filter-container">
+            <label for="usuario_id">Selecionar Usuário:</label>
+            <select id="usuario_id" name="usuario_id">
+                <option value="">Todos os Usuários</option>
+                {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" {% if usuario.id == request.form['usuario_id'] %}selected{% endif %}>{{ usuario.nome }}</option>
+                {% endfor %}
+            </select>
+    
+            <label for="mes">Mês:</label>
+            <select id="mes" name="mes">
+                <option value="">Todos os Meses</option>
+                {% for i in range(1, 13) %}
+                <option value="{{ i }}" {% if i == request.form.get('mes', '')|int %}selected{% endif %}>{{ i }}</option>
+                {% endfor %}
+            </select>
+    
+            <label for="ano">Ano:</label>
+            <input type="number" id="ano" name="ano" value="{{ request.form['ano'] or current_year }}" min="2000" max="2100" placeholder="2025">
+    
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+        <div class="button-container">
+            <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar ao Menu</a>
+        </div>
+    </form>
+
+    <div class="agenda-results">
+        {% if agendamentos_por_dia %}
+            {% for data, agendamentos in agendamentos_por_dia.items() %}
+                <h3 class="agenda-day-header">{{ agendamentos[0].dia_semana_traduzido }} {{ data }}</h3>
+                {% for agendamento in agendamentos %}
+                    <div class="agendamento-item">
+                        <strong>
+                            {% set usuario_nome = usuarios | selectattr('id', 'equalto', agendamento.usuario_id) | first %}
+                            {{ usuario_nome.nome if usuario_nome else 'Usuário Desconhecido' }}
+                        </strong>
+                        <p>horário: {{ agendamento.horario }} / duração: {{ agendamento.duracao }}</p>
+                    </div>
+                {% endfor %}
+                <hr>
+            {% endfor %}
+        {% else %}
+            <p>Nenhum agendamento encontrado.</p>
+        {% endif %}
+    </div>
+{% endblock %}

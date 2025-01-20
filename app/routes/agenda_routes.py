@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.database import get_db_connection
 from datetime import datetime, timedelta
 import re
+import mysql.connector
+from collections import defaultdict
 
 agenda_routes = Blueprint('agenda_routes', __name__)
 
@@ -147,7 +149,6 @@ def criar_agenda():
 
         cursor.close()
         connection.close()
-        print(criar_agenda)
 
         return redirect(url_for('agenda_routes.agenda'))
 
@@ -343,7 +344,6 @@ def editar_agendamento(id):
 from datetime import datetime, timedelta
 
 def verificar_sobreposicao_agendamento(data, horario, duracao, agendamento_id_atual=None):
-    print("entrou aqui ", data, horario, duracao, agendamento_id_atual)
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -391,3 +391,94 @@ def dia_formatado(data):
     mes = data.month
     ano = data.year
     return f"{dia:02}/{mes:02}/{ano}"
+
+
+@agenda_routes.route('/filtro_agenda', methods=['GET', 'POST'])
+def filtro_agenda():
+    """Rota para filtrar e exibir os agendamentos."""
+    if request.method == 'POST':
+        usuario_id = request.form.get('usuario_id')
+        mes = request.form.get('mes')
+        ano = request.form.get('ano')
+        agendamentos_por_dia = defaultdict(list)
+        data_atual = datetime.today().strftime('%d/%m/%Y')
+
+        try:
+            cnx = get_db_connection()
+            cursor = cnx.cursor(dictionary=True)
+
+            cursor.execute("SELECT * FROM usuarios")
+            usuarios = cursor.fetchall()
+
+            query = "SELECT * FROM agenda WHERE 1=1"
+            params = []
+
+            if usuario_id:
+                query += " AND usuario_id = %s"
+                params.append(usuario_id)
+
+            if ano:
+                query += " AND YEAR(data) = %s"
+                params.append(ano)
+
+            if mes:
+                query += " AND MONTH(data) = %s"
+                params.append(mes)
+
+            cursor.execute(query, params)
+            agendamentos = cursor.fetchall()
+
+            dias_semana_traduzidos = {
+                "Monday": "Segunda-feira",
+                "Tuesday": "Terça-feira",
+                "Wednesday": "Quarta-feira",
+                "Thursday": "Quinta-feira",
+                "Friday": "Sexta-feira",
+                "Saturday": "Sábado",
+                "Sunday": "Domingo"
+            }
+
+            agendamentos_por_dia = defaultdict(list)
+            for agendamento in agendamentos:
+                agendamento['dia_semana_traduzido'] = dias_semana_traduzidos.get(
+                    agendamento['dia_semana'], agendamento['dia_semana']
+                )
+                data_formatada = agendamento['data'].strftime('%d/%m/%Y')
+
+                if data_formatada >= data_atual:
+                    agendamentos_por_dia[data_formatada].append(agendamento)
+            
+            agendamentos_por_dia = dict(sorted(
+                agendamentos_por_dia.items(),
+                key=lambda item: (item[0][3:5], item[0][:2])
+            ))
+            
+
+        except mysql.connector.Error as e:
+            flash(f'Erro ao carregar dados: {e}', 'error')
+            agendamentos_por_dia = {}
+        finally:
+            cursor.close()
+            cnx.close()
+
+        return render_template(
+            'filtro_agenda.html',
+            usuarios=usuarios,
+           agendamentos_por_dia=agendamentos_por_dia
+        )
+
+    try:
+        cnx = get_db_connection()
+        cursor = cnx.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM usuarios")
+        usuarios = cursor.fetchall()
+
+    except mysql.connector.Error as e:
+        flash(f'Erro ao carregar dados: {e}', 'error')
+        usuarios = []
+    finally:
+        cursor.close()
+        cnx.close()
+
+    return render_template('filtro_agenda.html', usuarios=usuarios, agendamentos_por_dia={})

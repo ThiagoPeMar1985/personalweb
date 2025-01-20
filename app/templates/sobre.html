@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container"> 
+
+<h1>Bem-vindo ao Personal Web</h1>
+<P>
+    Nosso aplicativo foi criado para simplificar a vida de personal trainers, oferecendo uma plataforma completa para gerenciar seus alunos, treinos e finanças de forma prática e eficiente.
+</P><br><br>
+
+<h3>Principais Funcionalidades:</h3><BR>
+
+    <ul>
+        <li><strong>Gestão de Usuários:</strong> Cadastre, edite e exclua usuários facilmente. Mantenha todas as informações dos seus alunos organizadas e acessíveis.</li>
+        <li><strong>Gestão de Treinos e Exercícios:</strong> Crie, edite e exclua treinos e exercícios de maneira rápida e prática. Planeje séries personalizadas para cada aluno e acompanhe o progresso deles com precisão.</li>
+        <li><strong>Agenda de Treinos:</strong> Planeje os treinos de forma visual e intuitiva. Nossa agenda permite:
+            <ul>
+                <li><strong>Agendamento Simples:</strong> Agende treinos e horários com facilidade.</li>
+                <li><strong>Agendamento Recorrente:</strong> Repita agendamentos por vários meses, garantindo uma programação consistente para seus alunos.</li>
+            </ul>
+        </li>
+        <li><strong>Gestão Financeira:</strong> Deixe o aplicativo ajudar você no controle financeiro! Adicione suas contas e entradas financeiras para ter controle total do seu dinheiro. Com nossa ferramenta, você pode:
+            <ul>
+                <li>Acompanhar suas receitas e despesas em tempo real.</li>
+                <li>Visualizar relatórios claros sobre seus ganhos e gastos.</li>
+                <li>Planejar seu orçamento de forma mais eficiente.</li>
+            </ul>
+        </li>
+        <li><strong>Políticas de Uso:</strong> Para que você conheça todas as vantagens do nosso sistema, oferecemos os primeiros 2 meses gratuitos, incluindo a hospedagem. Após este período, será cobrada uma taxa mensal de R$ 100,00, além do valor da hospedagem.</li>
+    </ul>
+</div>
+
+<div class="container"> 
+    <h2>Política de Uso do Personal Web</h2>
+
+        <p>Ao utilizar o Personal Web, você concorda com os seguintes termos e condições. Este documento é importante para garantir uma experiência segura e eficiente para todos os usuários da plataforma.</p>
+
+        <h4>1. Cadastro e Acesso</h4>
+        <p>Para acessar todos os recursos do Personal Web, é necessário realizar um cadastro na plataforma. Durante o cadastro, você fornecerá informações como nome, email, usuário e senha. É de sua responsabilidade garantir que as informações fornecidas sejam precisas e atualizadas. O Personal Web se reserva o direito de suspender ou bloquear contas com informações falsas ou suspeitas.</p>
+
+        <h4>2. Responsabilidades do Usuário</h4>
+        <p>Como usuário, você concorda em:</p>
+        <ul>
+            <li>Usar a plataforma apenas para fins legais e em conformidade com as leis locais.</li>
+            <li>Não compartilhar sua conta com terceiros e proteger sua senha.</li>
+            <li>Não realizar atividades fraudulentas, como a criação de contas falsas ou manipulação de dados financeiros.</li>
+            <li>Respeitar os outros usuários e não realizar ações que possam prejudicar o funcionamento da plataforma ou a experiência de outros usuários.</li>
+        </ul>
+
+        <h4>3. Taxas e Pagamentos</h4>
+        <p>O Personal Web oferece os primeiros 2 meses gratuitos para novos usuários, incluindo a hospedagem. Após o período gratuito, será cobrada uma taxa mensal de R$ 100,00, além dos custos da hospedagem. A cobrança será realizada automaticamente no início de cada ciclo mensal. Você pode cancelar sua assinatura a qualquer momento antes do próximo ciclo de cobrança para evitar cobranças futuras.</p>
+
+        <h4>4. Privacidade e Segurança</h4>
+        <p>A privacidade dos nossos usuários é uma prioridade. O Personal Web coleta apenas as informações necessárias para fornecer seus serviços. Todos os dados pessoais e financeiros são armazenados de forma segura, utilizando criptografia e outras medidas de proteção. Não compartilhamos suas informações com terceiros, exceto quando necessário para cumprir com obrigações legais ou melhorar a qualidade dos nossos serviços.</p>
+
+        <h4>5. Cancelamento e Reembolsos</h4>
+        <p>Para cancelar seu serviço e a hospedagem do aplicativo, entre em contato diretamente com o desenvolvedor através do <strong>WhatsApp</strong>. Caso o cancelamento seja realizado, todos os dados armazenados no aplicativo serão apagados permanentemente. Não haverá reembolsos para o período em curso, mas você continuará com acesso à plataforma até o final do ciclo de pagamento atual.</p>
+
+        <h4>6. Alterações na Política de Uso</h4>
+        <p>O Personal Web se reserva o direito de alterar esta Política de Uso a qualquer momento. Quaisquer alterações serão notificadas aos usuários por meio de email ou pela própria plataforma. Recomendamos que você revise esta política regularmente para se manter atualizado sobre possíveis modificações.</p>
+
+        <h4>7. Suporte ao Usuário</h4>
+        <p>Em caso de dúvidas ou problemas relacionados à sua conta ou ao uso da plataforma, nossa equipe de suporte está disponível para ajudar. Você pode entrar em contato conosco através do formulário de contato ou pelo WhatsApp.</p>
+    </div>
+</div>
+
+<div class="container">
+<h2>Entre em contato!</h2>
+Para saber mais ou tirar dúvidas, clique no botão abaixo:<br><br>
+
+Fale comigo no WhatsApp: <br>
+<a href="https://wa.me/24998539510" target="_blank" class="whatsapp-button">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" width="20" />
+  </a> 
+  <br><br>
+
+Estamos prontos para ajudá-lo a aproveitar ao máximo esta ferramenta e transformar sua rotina como personal trainer.
+
+<div class="back-button-container">
+    <a href="{{ url_for('menu_routes.menu') }}" class="btn btn-danger">Voltar</a>
+</div>
+
+
+
+
+
+{% endblock %}

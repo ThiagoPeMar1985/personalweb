@@ -84,14 +84,14 @@
 
 
     <div class="panel-section">
-        <h2>Contas a Pagar</h2>
+        <h2>Contas </h2>
         <div class="table-container">
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Descrição</th>
                         <th>Valor</th>
-                        <th>Data de Vencimento</th>
+                        <th>Vencimento</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
@@ -184,14 +184,38 @@
         </div>
     </div>
 
-    <div class="toggle-section">
-        <button id="toggle-entradas" class="btn btn-primary">Mostrar Entradas</button>
-    </div>
 
-    <div id="entradas" style="display: none;">
+
+    <div >
         <div class="panel-section">
-            <h2>Entradas</h2>
-            <div class="table-container">
+            <h2>Filtros</h2>
+            <form action="{{ url_for('painel_routes.filtrar_financeiro') }}" method="POST">
+                <div class="filter-container">
+                    <label for="mes">Mês:</label>
+                    <select id="mes" name="mes">
+                        <option value="01">Janeiro</option>
+                        <option value="02">Fevereiro</option>
+                        <option value="03">Março</option>
+                        <option value="04">Abril</option>
+                        <option value="05">Maio</option>
+                        <option value="06">Junho</option>
+                        <option value="07">Julho</option>
+                        <option value="08">Agosto</option>
+                        <option value="09">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+            
+                    <label for="ano">Ano:</label>
+                    <input type="number" id="ano" name="ano" value="{{ ano }}" required placeholder="2023">
+            
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+
+                    <button id="toogle_entradas" type="button" class="btn btn-primary" onclick="toggleEntradas()">Mostrar</button>
+                </div>
+            </form>
+            <div  id="entradas"class="table-container" style="display: none;">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -217,50 +241,23 @@
             </div>
         </div>
     </div>
+    
 
-    <div class="panel-section">
-        <h2>Contas Pagas</h2>
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Descrição</th>
-                        <th>Valor</th>
-                        <th>Data de Vencimento</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for conta in contas if conta['status']|lower == 'pago' %}
-                    <tr>
-                        <td>{{ conta.descricao }}</td>
-                        <td class="valor">R$ {{ conta.valor }}</td>
-                        <td>{{ conta.data_vencimento }}</td>
-                        <td><span class="status-badge status-paid">{{ conta['status'] }}</span></td>
-                    </tr>
-                    {% endfor %}
-                    {% if contas|selectattr('status', 'equalto', 'pago')|list|length == 0 %}
-                    <tr>
-                        <td colspan="4" class="no-data">Nenhuma conta paga encontrada para este mês.</td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
-    </div>
 
     <script>
-        document.getElementById('toggle-entradas').addEventListener('click', function() {
-            var entradas = document.getElementById('entradas');
-            if (entradas.style.display === 'none') {
-                entradas.style.display = 'block';
-                this.textContent = 'Esconder Entradas';
-            } else {
-                entradas.style.display = 'none';
-                this.textContent = 'Mostrar Entradas';
-            }
-        });
-    var contas = {{ contas | tojson }};
+
+    function toggleEntradas() {
+        var entradas = document.getElementById('entradas');
+        var button = document.getElementById('toogle_entradas');
+
+        if (entradas.style.display === 'none' || entradas.style.display === '') {
+            entradas.style.display = 'block'; // Show the entries
+            button.textContent = 'Esconder Entradas'; // Change button text
+        } else {
+            entradas.style.display = 'none'; // Hide the entries
+            button.textContent = 'Mostrar Entradas'; // Change button text
+        }
+    }
         
     function calcularTotalContasPagas(contas) {
         

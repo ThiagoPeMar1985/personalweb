@@ -21,8 +21,8 @@ def painel_controle():
     ]
     nome_mes = f"{meses[mes - 1].capitalize()} de {ano}" 
     contas = mostrar_contas(mes, ano)
-    entrada_valores = mostrar_valores(mes, ano)
     pagamentos_dia = pagamentos_do_dia()
+    entrada_valores = mostrar_valores(mes, ano)
 
 
     for entrada in entrada_valores:
@@ -120,7 +120,6 @@ def mostrar_contas(mes, ano):
     return contas
 
 def mostrar_valores(mes, ano):
-    """Fetch financial entries for the given month and year."""
     try:
         cnx = get_db_connection()
         cursor = cnx.cursor(dictionary=True)
@@ -294,4 +293,14 @@ def pagamentos_do_dia():
         conn.close()
     
     return pagamentos_dia 
+
+@painel_routes.route('/filtrar_financeiro', methods=['POST'])
+def filtrar_financeiro():
+    mes = request.form.get('mes')
+    ano = request.form.get('ano')
+
+    contas = mostrar_contas(mes, ano)
+    entrada_valores = mostrar_valores(mes, ano)
+
+    return render_template('painelfinanceiro.html', contas=contas, entrada_valores=entrada_valores, mes=mes, ano=ano)
 

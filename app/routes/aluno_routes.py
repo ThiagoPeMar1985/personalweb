@@ -187,15 +187,16 @@ def adicionar_treino(user_id):
     exercicio = request.form['exercicio']
     repeticoes = request.form['repeticoes']
     peso = request.form['peso']
+    cadencia = request.form.get('cadencia', None)
 
     cnx = get_db_connection()
     cursor = cnx.cursor()
 
     query = """
-    INSERT INTO treinos (usuario_id, nome_treino, exercicio, repeticoes, peso)
-    VALUES (%s, %s, %s, %s, %s)
+    INSERT INTO treinos (usuario_id, nome_treino, exercicio, repeticoes, peso, cadencia)
+    VALUES (%s, %s, %s, %s, %s, %s)
     """
-    cursor.execute(query, (user_id, nome_treino, exercicio, repeticoes, peso))
+    cursor.execute(query, (user_id, nome_treino, exercicio, repeticoes, peso, cadencia))
     cnx.commit()
 
     cursor.close()

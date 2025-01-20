@@ -28,3 +28,11 @@ def menu():
 
     return render_template('menu.html', usuarios=usuarios)  
 
+
+@menu_routes.route('/contato')
+def contato():
+  
+        
+
+    return render_template('sobre.html')
+

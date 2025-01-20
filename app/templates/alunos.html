@@ -15,24 +15,18 @@
             <div class="agendamento-item">
                 <div class="details-grid">
                     <div class="detail-item">
-                        <div class="full-width-header">
-                            <strong>{{ dias_semana_traduzidos[agendamento.dia_semana] }}</strong>
+                        <div class="agenda-day-header">
+                            <strong>{{ dias_semana_traduzidos[agendamento.dia_semana] }}    {{ agendamento.data.strftime('%d/%m/%Y') }}</strong>
                         </div>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-value"><strong>{{ agendamento.data.strftime('%d/%m/%Y') }}</strong></span>
+                        <span class="detail-label"><strong>Inicia:</strong> {{ agendamento.horario }}</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Inicia :</span>
-                        <span class="detail-value">{{ agendamento.horario }}</span>
+                        <span class="detail-label"><strong>Finaliza:</strong> {{ agendamento.horario_final }}</span>     
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Finaliza :</span>
-                        <span class="detail-value">{{ agendamento.horario_final }}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Tipo:</span>
-                        <span class="detail-value">{{ agendamento.tipo }}</span>
+                        <span class="detail-label"><strong>Tipo:</strong> {{ agendamento.tipo }}</span>
                     </div>
                 </div>
             </div>
@@ -340,8 +334,13 @@
                                     <div class="exercise-item">
                                         <div class="exercise-name">{{ treino.exercicio }}</div>
                                         <div class="exercise-details">
-                                            <span class="exercise-reps">{{ treino.repeticoes }} repetições</span>
-                                            <span class="exercise-weight">{{ treino.peso }}</span>
+                                            <span class="exercise-reps">Rep: {{ treino.repeticoes }}</span>
+                                            <span class="exercise-weight"> Peso: {{ treino.peso }}</span>
+                                            {% if treino.cadencia is not none %}
+                                                <span class="exercise-cadencia">Cad: {{ treino.cadencia }}</span>
+                                            {% else %}
+                                                <span class="exercise-cadencia" style="display: none;"></span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 {% endfor %}

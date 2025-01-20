@@ -27,6 +27,11 @@
                             <div class="exercise-details">
                                 <span class="exercise-reps">{{ treino.repeticoes }} repetições</span>
                                 <span class="exercise-weight">{{ treino.peso }}</span>
+                                {% if treino.cadencia is not none %}
+                                    <span class="exercise-cadencia">{{ treino.cadencia }}</span>
+                                {% else %}
+                                    <span class="exercise-cadencia" style="display: none;"></span>
+                                {% endif %}
                             </div>
                         </div>
                     {% endfor %}
@@ -65,7 +70,12 @@
                 <label for="peso">Peso (kg)</label>
                 <input type="text" id="peso" name="peso" required>
             </div>
-            
+
+            <div class="form-group">
+                <label for="cadencia">Cadencia</label>
+                <input type="text" id="cadencia" name="cadencia">
+            </div> 
+
             <button type="submit" class="btn btn-primary">Adicionar Exercício</button>
             <a href="{{ url_for('aluno_routes.gerenciar_treinos', user_id=usuario.id) }}" class="btn btn-danger">Excluir Exercícios</a>
         </form>
